@@ -38,6 +38,7 @@ export class MainwindowComponent implements OnInit{
   ngOnInit(): void {
     const user = this.ss.getUser();
     if(user.id) this.user = user;
+    console.log(this.user)
   }
 
   constructor(private router:Router,private ss:StorageService) {

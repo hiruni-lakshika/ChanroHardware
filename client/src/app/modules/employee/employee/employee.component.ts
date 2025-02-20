@@ -1,4 +1,4 @@
-import {ChangeDetectorRef, Component, ViewChild} from '@angular/core';
+import {ChangeDetectorRef, Component, OnInit, ViewChild} from '@angular/core';
 import {FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators} from "@angular/forms";
 import {MatGridList, MatGridTile} from "@angular/material/grid-list";
 import {MatPaginator} from "@angular/material/paginator";
@@ -31,7 +31,7 @@ import {AsyncPipe} from "@angular/common";
   templateUrl: './employee.component.html',
   styleUrl: './employee.component.scss'
 })
-export class EmployeeComponent {
+export class EmployeeComponent implements OnInit{
   isFailed = false;
   isLoading = false;
 
