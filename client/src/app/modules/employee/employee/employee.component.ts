@@ -18,6 +18,7 @@ import {EmployeetypeService} from "../../../core/service/employee/employeetype.s
 import {EmployeestatusService} from "../../../core/service/employee/employeestatus.service";
 import {AsyncPipe} from "@angular/common";
 import {RegexService} from "../../../core/service/regexes/regex.service";
+import {ConfirmDialogComponent} from "../../../shared/dialog/confirm-dialog/confirm-dialog.component";
 
 @Component({
   selector: 'app-employee',
@@ -83,7 +84,7 @@ export class EmployeeComponent implements OnInit{
   ) {
 
     this.employeeSearchForm = this.fb.group({
-      ssfirstname:[null,[Validators.pattern(/^([A-Z][a-z]*[.]?[\s]?)*([A-Z][a-z]*)$/)]],
+      sslastname:[null,[Validators.pattern(/^([A-Z][a-z]*[.]?[\s]?)*([A-Z][a-z]*)$/)]],
       ssnumber:[null,[Validators.pattern(/^E[0-9]{3}$/)]],
       ssgender:['default',Validators.required],
       ssdesignation:['default',Validators.required],
@@ -468,7 +469,7 @@ export class EmployeeComponent implements OnInit{
 
   handleSearch(){
 
-    const ssfullname  = this.employeeSearchForm.controls['ssfullname'].value;
+    const sslastname  = this.employeeSearchForm.controls['sslastname'].value;
     const ssnumber  = this.employeeSearchForm.controls['ssnumber'].value;
     const ssgender  = this.employeeSearchForm.controls['ssgender'].value;
     const ssdesignation  = this.employeeSearchForm.controls['ssdesignation'].value;
@@ -476,7 +477,7 @@ export class EmployeeComponent implements OnInit{
     let query = ""
 
     if(ssnumber != null && ssnumber.trim() !="") query = query + "&number=" + ssnumber;
-    if(ssfullname != null && ssfullname.trim() !="") query = query + "&fullname=" + ssfullname;
+    if(sslastname != null && sslastname.trim() !="") query = query + "&lastname=" + sslastname;
     if(ssgender != 'default') query = query + "&genderid=" + parseInt(ssgender);
     if(ssdesignation != 'default') query = query + "&designationid=" + parseInt(ssdesignation);
 
@@ -486,18 +487,18 @@ export class EmployeeComponent implements OnInit{
 
   clearSearch() {
 
-    //   const operation = "Clear Search";
-    //
-    //   this.dialog.open(ConfirmDialogComponent,{data:operation})
-    //     .afterClosed().subscribe(res => {
-    //     if(!res){
-    //       return;
-    //     }else{
-    //       this.employeeSearchForm.reset();
-    //       this.employeeSearchForm.controls['ssgender'].setValue('default');
-    //       this.employeeSearchForm.controls['ssdesignation'].setValue('default');
-    //       this.loadTable("");
-    //     }
-    //   });
+      const operation = "Clear Search";
+
+      this.dialog.open(ConfirmDialogComponent,{data:operation})
+        .afterClosed().subscribe(res => {
+        if(!res){
+          return;
+        }else{
+          this.employeeSearchForm.reset();
+          this.employeeSearchForm.controls['ssgender'].setValue('default');
+          this.employeeSearchForm.controls['ssdesignation'].setValue('default');
+          this.loadTable("");
+        }
+      });
   }
 }
