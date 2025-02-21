@@ -429,31 +429,31 @@ export class EmployeeComponent implements OnInit{
 
   deleteEmployee(employee:Employee){
 
-    // const operation = "Delete Employee " + employee.callingname +" ("+ employee.number +") ";
-    // //console.log(operation);
-    //
-    // this.dialog.open(ConfirmDialogComponent,{data:operation})
-    //   .afterClosed().subscribe((res:boolean) => {
-    //   if(res && employee.id){
-    //     this.es.delete(employee.id).subscribe({
-    //       next: () => {
-    //         this.loadTable("");
-    //         this.tst.handleResult("success","Employee Deleted Successfully");
-    //         this.clearForm();
-    //       },
-    //       error: (err:any) => {
-    //         this.tst.handleResult("failed",err.error.data.message);
-    //       }
-    //     });
-    //   }
-    // })
+    const operation = "Delete Employee " + employee.lastname +" ("+ employee.number +") ";
+    //console.log(operation);
+
+    this.dialog.open(ConfirmDialogComponent,{data:operation})
+      .afterClosed().subscribe((res:boolean) => {
+      if(res && employee.id){
+        this.es.delete(employee.id).subscribe({
+          next: () => {
+            this.loadTable("");
+            this.tst.handleResult("success","Employee Deleted Successfully");
+            this.clearForm();
+          },
+          error: (err:any) => {
+            this.tst.handleResult("failed",err.error.data.message);
+          }
+        });
+      }
+    })
   }
 
   generateRandomNumber(){
     const numbers = this.employees.map(n => parseInt(<string>n.number?.substring(1)));
     const maxno = Math.max(...numbers);
     const nextno = maxno + 1;
-    const formattedNextNumber = 'E' + nextno.toString().padStart(3, '0');
+    const formattedNextNumber = 'E' + nextno.toString().padStart(5, '0');
     this.employeeForm.controls['number'].setValue(formattedNextNumber);
   }
 
