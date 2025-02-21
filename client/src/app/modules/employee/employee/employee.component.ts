@@ -19,6 +19,8 @@ import {EmployeestatusService} from "../../../core/service/employee/employeestat
 import {AsyncPipe} from "@angular/common";
 import {RegexService} from "../../../core/service/regexes/regex.service";
 import {ConfirmDialogComponent} from "../../../shared/dialog/confirm-dialog/confirm-dialog.component";
+import {AuthorizationService} from "../../../core/service/auth/authorization.service";
+import {WarningDialogComponent} from "../../../shared/dialog/warning-dialog/warning-dialog.component";
 
 @Component({
   selector: 'app-employee',
@@ -53,10 +55,10 @@ export class EmployeeComponent implements OnInit{
 
   imageempurl: any = 'assets/tabledefault.png';
 
-  protected hasUpdateAuthority = true; //need to be false
-  protected hasDeleteAuthority = true; //need to be false
-  protected hasWriteAuthority = true; //need to be false
-  protected hasReadAuthority = true; //need to be false
+  protected hasUpdateAuthority = this.auths.hasAuthority("Employee-UPDATE"); //need to be false
+  protected hasDeleteAuthority = this.auths.hasAuthority("Employee-DELETE"); //need to be false
+  protected hasWriteAuthority = this.auths.hasAuthority("Employee-WRITE"); //need to be false
+  protected hasReadAuthority = this.auths.hasAuthority("Employee-READ"); //need to be false
 
   employeeSearchForm:FormGroup;
   employeeForm!:FormGroup;
@@ -79,7 +81,7 @@ export class EmployeeComponent implements OnInit{
     private rs:RegexService,
     private ets:EmployeetypeService,
     private ess:EmployeestatusService,
-    //private authorizationService:AuthorizationService,
+    private auths:AuthorizationService,
     private cdr:ChangeDetectorRef
   ) {
 
@@ -160,19 +162,19 @@ export class EmployeeComponent implements OnInit{
 
   createForm(){
     this.employeeForm.controls['number'].setValidators([Validators.required, Validators.pattern(this.regexes['number']['regex'])]);
-    this.employeeForm.controls['fullname'].setValidators([Validators.required, Validators.pattern(this.regexes['fullname']['regex'])]);
-    this.employeeForm.controls['callingname'].setValidators([Validators.required, Validators.pattern(this.regexes['callingname']['regex'])]);
+    this.employeeForm.controls['firstname'].setValidators([Validators.required, Validators.pattern(this.regexes['firstname']['regex'])]);
+    this.employeeForm.controls['lastname'].setValidators([Validators.required, Validators.pattern(this.regexes['lastname']['regex'])]);
     this.employeeForm.controls['gender'].setValidators([Validators.required]);
     this.employeeForm.controls['nic'].setValidators([Validators.required, Validators.pattern(this.regexes['nic']['regex'])]);
-    this.employeeForm.controls['dobirth'].setValidators([Validators.required]);
+    this.employeeForm.controls['dob'].setValidators([Validators.required]);
     this.employeeForm.controls['photo'].setValidators([Validators.required]);
-    this.employeeForm.controls['address'].setValidators([Validators.required]);
+    this.employeeForm.controls['doassigned'].setValidators([Validators.required]);
     this.employeeForm.controls['email'].setValidators([Validators.required, Validators.pattern(this.regexes['email']['regex'])]);
     this.employeeForm.controls['mobile'].setValidators([Validators.required, Validators.pattern(this.regexes['mobile']['regex'])]);
     this.employeeForm.controls['land'].setValidators([Validators.required,Validators.pattern(this.regexes['land']['regex'])]);
     this.employeeForm.controls['designation'].setValidators([Validators.required]);
     this.employeeForm.controls['description'].setValidators([Validators.required,Validators.pattern(this.regexes['description']['regex'])]);
-    this.employeeForm.controls['emptype'].setValidators([Validators.required]);
+    this.employeeForm.controls['employeetype'].setValidators([Validators.required]);
     this.employeeForm.controls['employeestatus'].setValidators([Validators.required]);
 
     Object.values(this.employeeForm.controls).forEach( control => { control.markAsTouched(); } );
@@ -291,59 +293,59 @@ export class EmployeeComponent implements OnInit{
   }
 
   addEmployee(){
-    // let errors = this.getErrors();
-    //
-    // if(errors != ""){
-    //   // this.dialog.open(WarningDialogComponent,{
-    //   //   data:{heading:"Errors - Employee Add ",message: "You Have Following Errors <br> " + errors}
-    //   // }).afterClosed().subscribe(res => {
-    //   //   if(!res){
-    //   //     return;
-    //   //   }
-    //   // });
-    // }else{
-    //   //this.employee = this.employeeForm.getRawValue();
-    //   const employee:Employee = {
-    //     photo: this.imageempurl.split(',')[1],
-    //     number: this.employeeForm.controls['number'].value,
-    //     address: this.employeeForm.controls['address'].value,
-    //     email: this.employeeForm.controls['email'].value,
-    //     firstname: this.employeeForm.controls['firstname'].value,
-    //     lastname: this.employeeForm.controls['lastname'].value,
-    //     dob: this.employeeForm.controls['dob'].value,
-    //     land: this.employeeForm.controls['land'].value,
-    //     mobile: this.employeeForm.controls['mobile'].value,
-    //     nic: this.employeeForm.controls['nic'].value,
-    //     description: this.employeeForm.controls['description'].value,
-    //
-    //     designation: {id: parseInt(this.employeeForm.controls['designation'].value)},
-    //     employeestatus: {id: parseInt(this.employeeForm.controls['employeestatus'].value)},
-    //     gender: {id: parseInt(this.employeeForm.controls['gender'].value)},
-    //     employeetype: {id: parseInt(this.employeeForm.controls['employeetype'].value)},
-    //
-    //   }
-    //
-    //   //console.log(employee);
-    //
-    //   this.currentOperation = "Employee Add " +employee.firstname + " ("+employee.number+ ") ";
-    //
-    //   this.dialog.open(ConfirmDialogComponent,{data:this.currentOperation})
-    //     .afterClosed().subscribe(res => {
-    //     if(res) {
-    //       this.es.save(employee).subscribe({
-    //         next:() => {
-    //           this.tst.handleResult('success',"Employee Saved Successfully");
-    //           this.loadTable("");
-    //           this.clearForm();
-    //         },
-    //         error:(err:any) => {
-    //           this.tst.handleResult('failed',err.error.data.message);
-    //           //console.log(err);
-    //         }
-    //       });
-    //     }
-    //   })
-    // }
+    let errors = this.getErrors();
+
+    if(errors != ""){
+      this.dialog.open(WarningDialogComponent,{
+        data:{heading:"Errors - Employee Add ",message: "You Have Following Errors <br> " + errors}
+      }).afterClosed().subscribe(res => {
+        if(!res){
+          return;
+        }
+      });
+    }else{
+      //this.employee = this.employeeForm.getRawValue();
+      const employee:Employee = {
+        photo: this.imageempurl.split(',')[1],
+        number: this.employeeForm.controls['number'].value,
+        email: this.employeeForm.controls['email'].value,
+        firstname: this.employeeForm.controls['firstname'].value,
+        lastname: this.employeeForm.controls['lastname'].value,
+        dob: this.employeeForm.controls['dob'].value,
+        land: this.employeeForm.controls['land'].value,
+        mobile: this.employeeForm.controls['mobile'].value,
+        nic: this.employeeForm.controls['nic'].value,
+        description: this.employeeForm.controls['description'].value,
+        doassigned: this.employeeForm.controls['doassigned'].value,
+
+        designation: {id: parseInt(this.employeeForm.controls['designation'].value)},
+        employeestatus: {id: parseInt(this.employeeForm.controls['employeestatus'].value)},
+        gender: {id: parseInt(this.employeeForm.controls['gender'].value)},
+        employeetype: {id: parseInt(this.employeeForm.controls['employeetype'].value)},
+
+      }
+
+      //console.log(employee);
+
+      this.currentOperation = "Employee Add " +employee.firstname + " ("+employee.number+ ") ";
+
+      this.dialog.open(ConfirmDialogComponent,{data:this.currentOperation})
+        .afterClosed().subscribe(res => {
+        if(res) {
+          this.es.save(employee).subscribe({
+            next:() => {
+              this.tst.handleResult('success',"Employee Saved Successfully");
+              this.loadTable("");
+              this.clearForm();
+            },
+            error:(err:any) => {
+              this.tst.handleResult('failed',err.error.data.message);
+              //console.log(err);
+            }
+          });
+        }
+      })
+    }
 
   }
 
