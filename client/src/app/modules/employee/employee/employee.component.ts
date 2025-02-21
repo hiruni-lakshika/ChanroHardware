@@ -351,79 +351,79 @@ export class EmployeeComponent implements OnInit{
 
   updateEmployee(employee:Employee){
 
-    // let errors = this.getErrors();
-    //
-    // if(errors != ""){
-    //   this.dialog.open(WarningDialogComponent,{
-    //     data:{heading:"Errors - Employee Update ",message: "You Have Following Errors <br> " + errors}
-    //   }).afterClosed().subscribe(res => {
-    //     if(!res){
-    //       return;
-    //     }
-    //   });
-    //
-    // }else{
-    //
-    //   let updates:string = this.getUpdates();
-    //
-    //   if(updates != ""){
-    //     this.dialog.open(WarningDialogComponent,{
-    //       data:{heading:"Updates - Employee Update ",message: "You Have Following Updates <br> " + updates}
-    //     }).afterClosed().subscribe(res => {
-    //       if(!res){
-    //         return;
-    //       }else{
-    //
-    //         const employees:Employee = {
-    //           id: employee.id,
-    //           photo: this.imageempurl.split(',')[1],
-    //           number: this.employeeForm.controls['number'].value,
-    //           address: this.employeeForm.controls['address'].value,
-    //           email: this.employeeForm.controls['email'].value,
-    //           callingname: this.employeeForm.controls['callingname'].value,
-    //           fullname: this.employeeForm.controls['fullname'].value,
-    //           dobirth: this.employeeForm.controls['dobirth'].value,
-    //           land: this.employeeForm.controls['land'].value,
-    //           mobile: this.employeeForm.controls['mobile'].value,
-    //           nic: this.employeeForm.controls['nic'].value,
-    //           description: this.employeeForm.controls['description'].value,
-    //
-    //           designation: {id: parseInt(this.employeeForm.controls['designation'].value)},
-    //           employeestatus: {id: parseInt(this.employeeForm.controls['employeestatus'].value)},
-    //           gender: {id: parseInt(this.employeeForm.controls['gender'].value)},
-    //           emptype: {id: parseInt(this.employeeForm.controls['emptype'].value)},
-    //
-    //         }
-    //         this.currentOperation = "Employee Update ";
-    //
-    //         this.dialog.open(ConfirmDialogComponent,{data:this.currentOperation})
-    //           .afterClosed().subscribe(res => {
-    //           if(res) {
-    //             this.es.updateEmployee(employees).subscribe({
-    //               next:() => {
-    //                 this.tst.handleResult('success',"Employee Updated Successfully");
-    //                 this.loadTable("");
-    //                 this.clearForm();
-    //               },
-    //               error:(err:any) => {
-    //                 this.tst.handleResult('failed',err.error.data.message);
-    //                 //console.log(err);
-    //               }
-    //             });
-    //           }
-    //         })
-    //
-    //       }
-    //     });
-    //
-    //   }else{
-    //     this.dialog.open(WarningDialogComponent,{
-    //       data:{heading:"Updates - Employee Update ",message: "No Fields Updated "}
-    //     }).afterClosed().subscribe(res =>{
-    //       if(res){return;}
-    //     })
-    //   }
-    // }
+    let errors = this.getErrors();
+
+    if(errors != ""){
+      this.dialog.open(WarningDialogComponent,{
+        data:{heading:"Errors - Employee Update ",message: "You Have Following Errors <br> " + errors}
+      }).afterClosed().subscribe(res => {
+        if(!res){
+          return;
+        }
+      });
+
+    }else{
+
+      let updates:string = this.getUpdates();
+
+      if(updates != ""){
+        this.dialog.open(WarningDialogComponent,{
+          data:{heading:"Updates - Employee Update ",message: "You Have Following Updates <br> " + updates}
+        }).afterClosed().subscribe(res => {
+          if(!res){
+            return;
+          }else{
+
+            const employees:Employee = {
+              id: employee.id,
+              photo: this.imageempurl.split(',')[1],
+              number: this.employeeForm.controls['number'].value,
+              email: this.employeeForm.controls['email'].value,
+              firstname: this.employeeForm.controls['firstname'].value,
+              lastname: this.employeeForm.controls['lastname'].value,
+              dob: this.employeeForm.controls['dob'].value,
+              land: this.employeeForm.controls['land'].value,
+              mobile: this.employeeForm.controls['mobile'].value,
+              nic: this.employeeForm.controls['nic'].value,
+              description: this.employeeForm.controls['description'].value,
+              doassigned: this.employeeForm.controls['doassigned'].value,
+
+              designation: {id: parseInt(this.employeeForm.controls['designation'].value)},
+              employeestatus: {id: parseInt(this.employeeForm.controls['employeestatus'].value)},
+              gender: {id: parseInt(this.employeeForm.controls['gender'].value)},
+              employeetype: {id: parseInt(this.employeeForm.controls['employeetype'].value)},
+
+            }
+            this.currentOperation = "Employee Update ";
+
+            this.dialog.open(ConfirmDialogComponent,{data:this.currentOperation})
+              .afterClosed().subscribe(res => {
+              if(res) {
+                this.es.update(employees).subscribe({
+                  next:() => {
+                    this.tst.handleResult('success',"Employee Updated Successfully");
+                    this.loadTable("");
+                    this.clearForm();
+                  },
+                  error:(err:any) => {
+                    this.tst.handleResult('failed',err.error.data.message);
+                    //console.log(err);
+                  }
+                });
+              }
+            })
+
+          }
+        });
+
+      }else{
+        this.dialog.open(WarningDialogComponent,{
+          data:{heading:"Updates - Employee Update ",message: "No Fields Updated "}
+        }).afterClosed().subscribe(res =>{
+          if(res){return;}
+        })
+      }
+    }
 
   }
 
