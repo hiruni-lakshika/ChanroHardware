@@ -11,9 +11,9 @@
     <div class="join ml-auto  scale-95">
       <input
         type="text"
-        placeholder="FullName"
+        placeholder="FirstName"
         class="input input-bordered w-15 max-w-xs focus:outline-none text-sm join-item"
-        formControlName="ssfullname"
+        formControlName="ssfirstname"
       />
 
       <input
@@ -79,33 +79,33 @@
       <form class="mt-5" [formGroup]="employeeForm">
 
         <div class="h-28 mb-8 flex flex-row items-center justify-center">
-          <img class="h-32 w-32 rounded-full border-2" src="{{imageempurl ? imageempurl : 'assets/tabledefault.png'}}">
+          <img class="h-32 w-32 rounded-full border-2" src="{{imageempurl ? imageempurl : '../assets/tabledefault.png'}}">
           <div class="flex flex-col mt-2">
-            <input  id="userImage" hidden="hidden" (change)="selectImage($event)" Select type="file" formControlName="photo">
-            <label for="userImage" class="btn ml-10 mb-2 text-white rounded-md text-center bg-gray-950 text-white w-28 hover:bg-gray-900">Select</label>
-            <label class="btn ml-10 mb-2 text-white rounded-md text-center bg-gray-950 text-white hover:bg-gray-900" (click)="clearImage()">Clear</label>
+            <input  id="userImage" hidden="hidden" (change)="selectImage($event)" select type="file" formControlName="photo">
+            <label for="userImage" class="btn ml-10 mb-2 rounded-md text-center bg-gray-950 text-white w-28 hover:bg-gray-900">Select</label>
+            <label class="btn ml-10 mb-2 rounded-md text-center bg-gray-950 text-white hover:bg-gray-900" (click)="clearImage()">Clear</label>
           </div>
         </div>
 
         <div class="relative w-full px-2 mb-3">
           <input
             type="text"
-            placeholder="Full Name"
+            placeholder="First Name"
             class="peer input input-bordered w-full focus:outline-none"
-            formControlName="fullname"
+            formControlName="firstname"
           />
-          <label class="floating-label">Full Name</label>
+          <label class="floating-label">First Name</label>
 
         </div>
 
         <div class="relative w-full px-2 mb-3">
           <input
             type="text"
-            placeholder="Calling Name"
+            placeholder="Last Name"
             class=" peer input input-bordered w-full focus:outline-none"
-            formControlName="callingname"
+            formControlName="lastname"
           />
-          <label class="floating-label">Calling Name</label>
+          <label class="floating-label">Last Name</label>
 
         </div>
 
@@ -124,7 +124,7 @@
             type="text"
             placeholder="Date Of Birth"
             class="peer input input-bordered w-full focus:outline-none"
-            formControlName="dobirth"
+            formControlName="dob"
             onfocus="(this.type='date')"
           />
           <label class="floating-label">Date Of Birth</label>
@@ -161,11 +161,12 @@
         <div class="relative w-full px-2 mb-3">
           <input
             type="text"
-            placeholder="Address"
+            placeholder="Do Assigned"
             class=" peer input input-bordered w-full focus:outline-none"
-            formControlName="address"
+            formControlName="doassigned"
+            onfocus="(this.type='date')"
           />
-          <label class="floating-label">Address</label>
+          <label class="floating-label">Do Assigned</label>
         </div>
 
         <div class="relative w-full px-2 mb-3">
@@ -219,14 +220,14 @@
           <div class="relative w-full px-2">
             <select
               class="peer select select-bordered w-full focus:outline-none mr-2"
-              formControlName="emptype"
+              formControlName="employeetype"
             >
-              <option disabled [ngValue]="null">EmpType</option>
+              <option disabled [ngValue]="null">Employee Type</option>
               @for (emptype of emptypes; track emptypes) {
                 <option value="{{emptype.id}}">{{emptype.name}}</option>
               }
             </select>
-            <label class="floating-labels-select">EmpType</label>
+            <label class="floating-labels-select">Employee Type</label>
           </div>
 
           <div class="relative w-full px-2">
@@ -282,7 +283,6 @@
               <th>Profile</th>
               <th>Designation</th>
               <th>Personal Info</th>
-              <th>Address</th>
               <th>Status</th>
               <th>Actions</th>
             </tr>
@@ -302,7 +302,7 @@
                       </div>
 
                       <div>
-                        <div class="font-bold">{{employee.fullname}}</div>
+                        <div class="font-bold">{{employee.firstname + " " + employee.lastname}}</div>
                         <div class="text-sm opacity-50">{{employee.number}}</div>
                       </div>
                     </div>
@@ -348,12 +348,8 @@
                         />
                       </svg>
 
-                      {{employee.dobirth}}
+                      {{employee.dob}}
                       </span>
-                  </td>
-
-                  <td class="w-51">
-                    <span>{{employee.address}}</span>
                   </td>
 
                   <td>

@@ -17,6 +17,7 @@ import {ToastService} from "../../../core/util/toast.service";
 import {EmployeetypeService} from "../../../core/service/employee/employeetype.service";
 import {EmployeestatusService} from "../../../core/service/employee/employeestatus.service";
 import {AsyncPipe} from "@angular/common";
+import {RegexService} from "../../../core/service/regexes/regex.service";
 
 @Component({
   selector: 'app-employee',
@@ -74,7 +75,7 @@ export class EmployeeComponent implements OnInit{
     private ds:DesignationService,
     private fb:FormBuilder,
     private tst:ToastService,
-    //private rs:RegexService,
+    private rs:RegexService,
     private ets:EmployeetypeService,
     private ess:EmployeestatusService,
     //private authorizationService:AuthorizationService,
@@ -82,7 +83,7 @@ export class EmployeeComponent implements OnInit{
   ) {
 
     this.employeeSearchForm = this.fb.group({
-      ssfullname:[null,[Validators.pattern(/^([A-Z][a-z]*[.]?[\s]?)*([A-Z][a-z]*)$/)]],
+      ssfirstname:[null,[Validators.pattern(/^([A-Z][a-z]*[.]?[\s]?)*([A-Z][a-z]*)$/)]],
       ssnumber:[null,[Validators.pattern(/^E[0-9]{3}$/)]],
       ssgender:['default',Validators.required],
       ssdesignation:['default',Validators.required],
@@ -90,16 +91,16 @@ export class EmployeeComponent implements OnInit{
 
     this.employeeForm = this.fb.group({
       "number": new FormControl('',[Validators.required]),
-      "fullname": new FormControl('',[Validators.required]),
-      "callingname": new FormControl('',[Validators.required]),
+      "firstname": new FormControl('',[Validators.required]),
+      "lastname": new FormControl('',[Validators.required]),
       "nic": new FormControl('',[Validators.required]),
-      "address": new FormControl('',[Validators.required]),
       "description": new FormControl('',[Validators.required]),
       "mobile": new FormControl('',[Validators.required]),
       "land": new FormControl('',[Validators.required]),
       "email": new FormControl('',[Validators.required]),
-      "dobirth": new FormControl('',[Validators.required]),
-      "emptype": new FormControl(null,[Validators.required]),
+      "dob": new FormControl('',[Validators.required]),
+      "doassigned": new FormControl('',[Validators.required]),
+      "employeetype": new FormControl(null,[Validators.required]),
       "gender": new FormControl(null,[Validators.required]),
       "designation": new FormControl(null,[Validators.required]),
       "employeestatus": new FormControl(null,[Validators.required]),
@@ -126,13 +127,13 @@ export class EmployeeComponent implements OnInit{
       //error: () => this.handleResult('failed')
     });
 
-    // this.rs.getRegexes('employee').subscribe({
-    //   next:data => {
-    //     this.regexes = data;
-    //     this.createForm();
-    //   },
-    //   error: () => this.regexes = [] || undefined
-    // });
+    this.rs.getRegexes('employee').subscribe({
+      next:data => {
+        this.regexes = data;
+        this.createForm();
+      },
+      error: () => this.regexes = [] || undefined
+    });
 
     this.ess.getAll().subscribe({
       next:data => this.employeestatuses = data,
@@ -245,6 +246,7 @@ export class EmployeeComponent implements OnInit{
       email: this.employee.email,
       mobile: this.employee.mobile,
       land: this.employee.land,
+      doassigned: this.employee.doassigned,
       number: this.employee.number,
       gender: this.employee.gender?.id,
       designation: this.employee.designation?.id,
