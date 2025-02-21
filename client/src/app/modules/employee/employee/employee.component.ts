@@ -21,6 +21,8 @@ import {RegexService} from "../../../core/service/regexes/regex.service";
 import {ConfirmDialogComponent} from "../../../shared/dialog/confirm-dialog/confirm-dialog.component";
 import {AuthorizationService} from "../../../core/service/auth/authorization.service";
 import {WarningDialogComponent} from "../../../shared/dialog/warning-dialog/warning-dialog.component";
+import {PageLoadingComponent} from "../../../pages/page-loading/page-loading.component";
+import {PageErrorComponent} from "../../../pages/page-error/page-error.component";
 
 @Component({
   selector: 'app-employee',
@@ -30,7 +32,9 @@ import {WarningDialogComponent} from "../../../shared/dialog/warning-dialog/warn
     MatGridList,
     MatGridTile,
     MatPaginator,
-    AsyncPipe
+    AsyncPipe,
+    PageLoadingComponent,
+    PageErrorComponent
   ],
   templateUrl: './employee.component.html',
   styleUrl: './employee.component.scss'
