@@ -23,9 +23,18 @@ import {AuthorizationService} from "../../../core/service/auth/authorization.ser
 import {WarningDialogComponent} from "../../../shared/dialog/warning-dialog/warning-dialog.component";
 import {PageLoadingComponent} from "../../../pages/page-loading/page-loading.component";
 import {PageErrorComponent} from "../../../pages/page-error/page-error.component";
+import {User} from "../../../core/entity/user";
+import {UserStatus} from "../../../core/entity/userstatus";
+import {Role} from "../../../core/entity/role";
+
+class UserTypeService {
+}
+
+class user {
+}
 
 @Component({
-  selector: 'app-employee',
+  selector: 'app-user',
   standalone: true,
   imports: [
     ReactiveFormsModule,
@@ -36,82 +45,70 @@ import {PageErrorComponent} from "../../../pages/page-error/page-error.component
     PageLoadingComponent,
     PageErrorComponent
   ],
-  templateUrl: './employee.component.html',
-  styleUrl: './employee.component.scss'
+  templateUrl: './user.component.html',
+  styleUrl: './user.component.scss'
 })
-export class EmployeeComponent implements OnInit{
+export class UserComponent implements OnInit{
   isFailed = false;
   isLoading = false;
 
-  employees: Employee[] = [];
-  genders: Gender[] = [];
-  designations: Designation[] = [];
-  emptypes: EmployeeType[] = [];
-  employeestatuses: EmployeeStatus[] = [];
+  users: User[] = [];
+  roles: Role[] = [];
+  userstatuses: UserStatus[] = [];
 
   regexes:any;
 
-  oldEmployee!: Employee;
-  employee!:Employee;
-  selectedRow!:Employee;
+  oldUser!: User;
+  user!:User;
+  selectedRow!:User;
 
   currentOperation = '';
 
   imageempurl: any = 'assets/tabledefault.png';
 
-  protected hasUpdateAuthority = this.auths.hasAuthority("Employee-UPDATE"); //need to be false
-  protected hasDeleteAuthority = this.auths.hasAuthority("Employee-DELETE"); //need to be false
-  protected hasWriteAuthority = this.auths.hasAuthority("Employee-WRITE"); //need to be false
-  protected hasReadAuthority = this.auths.hasAuthority("Employee-READ"); //need to be false
+  protected hasUpdateAuthority = this.auths.hasAuthority("User-UPDATE"); //need to be false
+  protected hasDeleteAuthority = this.auths.hasAuthority("User-DELETE"); //need to be false
+  protected hasWriteAuthority = this.auths.hasAuthority("User-WRITE"); //need to be false
+  protected hasReadAuthority = this.auths.hasAuthority("User-READ"); //need to be false
 
-  employeeSearchForm:FormGroup;
-  employeeForm!:FormGroup;
+  userSearchForm:FormGroup;
+  userForm!:FormGroup;
 
-  dataSource!: MatTableDataSource<Employee>;
+  dataSource!: MatTableDataSource<User>;
   data!: Observable<any>
   @ViewChild(MatPaginator) paginator!: MatPaginator;
 
   enaadd:boolean = false;
   enaupd:boolean = false;
   enadel:boolean = false;
+  private user: string;
 
   constructor(
     private dialog:MatDialog,
-    private es:EmployeeService,
-    private gs:GenderService,
     private ds:DesignationService,
     private fb:FormBuilder,
     private tst:ToastService,
     private rs:RegexService,
-    private ets:EmployeetypeService,
+    private ets:UserTypeService,
     private ess:EmployeestatusService,
     private auths:AuthorizationService,
     private cdr:ChangeDetectorRef
   ) {
 
-    this.employeeSearchForm = this.fb.group({
+    this.userSearchForm = this.fb.group({
       sslastname:[null,[Validators.pattern(/^([A-Z][a-z]*[.]?[\s]?)*([A-Z][a-z]*)$/)]],
       ssnumber:[null,[Validators.pattern(/^E[0-9]{3}$/)]],
       ssgender:['default',Validators.required],
       ssdesignation:['default',Validators.required],
     });
 
-    this.employeeForm = this.fb.group({
-      "number": new FormControl('',[Validators.required]),
-      "firstname": new FormControl('',[Validators.required]),
-      "lastname": new FormControl('',[Validators.required]),
-      "nic": new FormControl('',[Validators.required]),
+    this.userForm = this.fb.group({
+      "username": new FormControl('',[Validators.required]),
+      "password": new FormControl('',[Validators.required]),
+      "salt": new FormControl('',[Validators.required]),
+      "docreated": new FormControl('',[Validators.required]),
       "description": new FormControl('',[Validators.required]),
-      "mobile": new FormControl('',[Validators.required]),
-      "land": new FormControl('',[Validators.required]),
-      "email": new FormControl('',[Validators.required]),
-      "dob": new FormControl('',[Validators.required]),
-      "doassigned": new FormControl('',[Validators.required]),
-      "employeetype": new FormControl(null,[Validators.required]),
-      "gender": new FormControl(null,[Validators.required]),
-      "designation": new FormControl(null,[Validators.required]),
-      "employeestatus": new FormControl(null,[Validators.required]),
-      "photo": new FormControl('', [Validators.required]),
+      "tocreated": new FormControl('',[Validators.required]),
     },{updateOn:'change'});
   }
 
@@ -124,17 +121,12 @@ export class EmployeeComponent implements OnInit{
 
     this.loadTable("");
 
-    this.gs.getAll().subscribe({
-      next:data => this.genders = data,
-      // error: () => this.handleResult('failed')
-    });
-
     this.ds.getAll().subscribe({
-      next:data => this.designations = data,
+     // next:data => this.designations = data,
       //error: () => this.handleResult('failed')
     });
 
-    this.rs.getRegexes('employee').subscribe({
+    this.rs.getRegexes('user').subscribe({
       next:data => {
         this.regexes = data;
         this.createForm();
@@ -143,19 +135,19 @@ export class EmployeeComponent implements OnInit{
     });
 
     this.ess.getAll().subscribe({
-      next:data => this.employeestatuses = data,
+      next:data => this.userstatuses=data;
     });
 
     this.ets.getAll().subscribe({
-      next:data => this.emptypes = data,
+      next:data => this.usertype=data;
     });
   }
 
   loadTable(query:string){
     this.es.getAll(query).subscribe({
       next:data =>{
-        this.employees = data;
-        this.dataSource = new MatTableDataSource<Employee>(this.employees);
+        this.users=data;
+        this.dataSource = new MatTableDataSource<Employee>(this.users);
         this.cdr.detectChanges();
         this.dataSource.paginator = this.paginator;
         this.data = this.dataSource.connect();
@@ -165,31 +157,31 @@ export class EmployeeComponent implements OnInit{
 
 
   createForm(){
-    this.employeeForm.controls['number'].setValidators([Validators.required, Validators.pattern(this.regexes['number']['regex'])]);
-    this.employeeForm.controls['firstname'].setValidators([Validators.required, Validators.pattern(this.regexes['firstname']['regex'])]);
-    this.employeeForm.controls['lastname'].setValidators([Validators.required, Validators.pattern(this.regexes['lastname']['regex'])]);
-    this.employeeForm.controls['gender'].setValidators([Validators.required]);
-    this.employeeForm.controls['nic'].setValidators([Validators.required, Validators.pattern(this.regexes['nic']['regex'])]);
-    this.employeeForm.controls['dob'].setValidators([Validators.required]);
-    this.employeeForm.controls['photo'].setValidators([Validators.required]);
-    this.employeeForm.controls['doassigned'].setValidators([Validators.required]);
-    this.employeeForm.controls['email'].setValidators([Validators.required, Validators.pattern(this.regexes['email']['regex'])]);
-    this.employeeForm.controls['mobile'].setValidators([Validators.required, Validators.pattern(this.regexes['mobile']['regex'])]);
-    this.employeeForm.controls['land'].setValidators([Validators.required,Validators.pattern(this.regexes['land']['regex'])]);
-    this.employeeForm.controls['designation'].setValidators([Validators.required]);
-    this.employeeForm.controls['description'].setValidators([Validators.required,Validators.pattern(this.regexes['description']['regex'])]);
-    this.employeeForm.controls['employeetype'].setValidators([Validators.required]);
-    this.employeeForm.controls['employeestatus'].setValidators([Validators.required]);
+    this.userForm.controls['number'].setValidators([Validators.required, Validators.pattern(this.regexes['number']['regex'])]);
+    this.userForm.controls['firstname'].setValidators([Validators.required, Validators.pattern(this.regexes['firstname']['regex'])]);
+    this.userForm.controls['lastname'].setValidators([Validators.required, Validators.pattern(this.regexes['lastname']['regex'])]);
+    this.userForm.controls['gender'].setValidators([Validators.required]);
+    this.userForm.controls['nic'].setValidators([Validators.required, Validators.pattern(this.regexes['nic']['regex'])]);
+    this.userForm.controls['dob'].setValidators([Validators.required]);
+    this.userForm.controls['photo'].setValidators([Validators.required]);
+    this.userForm.controls['doassigned'].setValidators([Validators.required]);
+    this.userForm.controls['email'].setValidators([Validators.required, Validators.pattern(this.regexes['email']['regex'])]);
+    this.userForm.controls['mobile'].setValidators([Validators.required, Validators.pattern(this.regexes['mobile']['regex'])]);
+    this.userForm.controls['land'].setValidators([Validators.required,Validators.pattern(this.regexes['land']['regex'])]);
+    this.userForm.controls['designation'].setValidators([Validators.required]);
+    this.userForm.controls['description'].setValidators([Validators.required,Validators.pattern(this.regexes['description']['regex'])]);
+    this.userForm.controls['employeetype'].setValidators([Validators.required]);
+    this.userForm.controls['employeestatus'].setValidators([Validators.required]);
 
-    Object.values(this.employeeForm.controls).forEach( control => { control.markAsTouched(); } );
+    Object.values(this.userForm.controls).forEach( control => { control.markAsTouched(); } );
 
-    for (const controlName in this.employeeForm.controls) {
-      const control = this.employeeForm.controls[controlName];
+    for (const controlName in this.userForm.controls) {
+      const control = this.userForm.controls[controlName];
       control.valueChanges.subscribe(value => {
 
-          if (this.oldEmployee != undefined && control.valid) {
+          if (this.oldUser != undefined && control.valid) {
             // @ts-ignore
-            if (value === this.employee[controlName]) {
+            if (value === this.user[controlName]) {
               control.markAsPristine();
             } else {
               control.markAsDirty();
@@ -225,20 +217,17 @@ export class EmployeeComponent implements OnInit{
 
   clearImage(): void {
     this.imageempurl = 'assets/tabledefault.png';
-    this.employeeForm.controls['photo'].setErrors({'required': true});
+    this.userForm.controls['photo'].setErrors({'required': true});
   }
 
-  fillForm(employee:Employee){
+  fillForm(user:user{
     this.enableButtons(false,true,true);
 
-    this.selectedRow = employee;
+    this.selectedRow = user;
 
-    this.employee = employee;
-    this.oldEmployee = this.employee;
+    this.user=this.user;
+   this.oldUser=this.user;
 
-    if(this.employee.photo){
-      this.imageempurl = this.urlToImage(this.employee.photo);
-      this.employeeForm.controls['photo'].clearValidators();
     }
 
     //this.employee.photo = "";
@@ -246,32 +235,23 @@ export class EmployeeComponent implements OnInit{
 
     //this.employeeForm.patchValue(this.employee);
 
-    this.employeeForm.setValue({
-      firstname: this.employee.firstname,
-      lastname: this.employee.lastname,
-      nic: this.employee.nic,
-      email: this.employee.email,
-      mobile: this.employee.mobile,
-      land: this.employee.land,
-      doassigned: this.employee.doassigned,
-      number: this.employee.number,
-      gender: this.employee.gender?.id,
-      designation: this.employee.designation?.id,
-      employeestatus: this.employee.employeestatus?.id,
-      employeetype: this.employee.employeetype?.id,
-      dob: this.employee.dob,
-      description: this.employee.description,
-      photo: "",
+    this.userForm.setValue({
+      username: this.user.username,
+      password: this.user.password,
+      salt: this.user.salt,
+      docreated: this.user.docreated,
+      tocreated:this.user.tocreated,
+      description: this.user.description,
     });
 
-    this.employeeForm.markAsPristine();
+    this.userForm.markAsPristine();
 
   }
 
   getUpdates():string {
     let updates: string = "";
-    for (const controlName in this.employeeForm.controls) {
-      const control = this.employeeForm.controls[controlName];
+    for (const controlName in this.userForm.controls) {
+      const control = this.userForm.controls[controlName];
       if (control.dirty) {
         updates = updates + "<br>" + controlName.charAt(0).toUpperCase() + controlName.slice(1)+" Changed";
       }
@@ -283,8 +263,8 @@ export class EmployeeComponent implements OnInit{
 
     let errors:string = "";
 
-    for(const controlName in this.employeeForm.controls){
-      const control = this.employeeForm.controls[controlName];
+    for(const controlName in this.userForm.controls){
+      const control = this.userForm.controls[controlName];
       if(control.errors){
         if(this.regexes[controlName] != undefined){
           errors = errors + "<br>" + this.regexes[controlName]['message'];
@@ -296,12 +276,12 @@ export class EmployeeComponent implements OnInit{
     return errors;
   }
 
-  addEmployee(){
+  addUser(){
     let errors = this.getErrors();
 
     if(errors != ""){
       this.dialog.open(WarningDialogComponent,{
-        data:{heading:"Errors - Employee Add ",message: "You Have Following Errors <br> " + errors}
+        data:{heading:"Errors - User Add ",message: "You Have Following Errors <br> " + errors}
       }).afterClosed().subscribe(res => {
         if(!res){
           return;
@@ -309,36 +289,31 @@ export class EmployeeComponent implements OnInit{
       });
     }else{
       //this.employee = this.employeeForm.getRawValue();
-      const employee:Employee = {
-        photo: this.imageempurl.split(',')[1],
-        number: this.employeeForm.controls['number'].value,
-        email: this.employeeForm.controls['email'].value,
-        firstname: this.employeeForm.controls['firstname'].value,
-        lastname: this.employeeForm.controls['lastname'].value,
-        dob: this.employeeForm.controls['dob'].value,
-        land: this.employeeForm.controls['land'].value,
-        mobile: this.employeeForm.controls['mobile'].value,
-        nic: this.employeeForm.controls['nic'].value,
-        description: this.employeeForm.controls['description'].value,
-        doassigned: this.employeeForm.controls['doassigned'].value,
+      const user:User = {
+        id:this.userForm.controls['id'].value,
+        username: this.userForm.controls['username'].value,
+        password: this.userForm.controls['password'].value,
+        user: this.userForm.controls['user'].value,
+        docreated:this.userForm.controls['docreated'].value,
+        tocreated:this.userForm.controls['tocreated'].value,
+        description: this.userForm.controls['description'].value,
 
-        designation: {id: parseInt(this.employeeForm.controls['designation'].value)},
-        employeestatus: {id: parseInt(this.employeeForm.controls['employeestatus'].value)},
-        gender: {id: parseInt(this.employeeForm.controls['gender'].value)},
-        employeetype: {id: parseInt(this.employeeForm.controls['employeetype'].value)},
+
+        userstatus: {id: parseInt(this.userForm.controls['userstatus'].value)},
+        usertype: {id: parseInt(this.userForm.controls['usertype'].value)},
 
       }
 
-      //console.log(employee);
+      //console.log(user);
 
-      this.currentOperation = "Employee Add " +employee.firstname + " ("+employee.number+ ") ";
+      this.currentOperation = "User Add " +user.name + " ("+this.user.name) ";
 
       this.dialog.open(ConfirmDialogComponent,{data:this.currentOperation})
         .afterClosed().subscribe(res => {
         if(res) {
-          this.es.save(employee).subscribe({
+          this.es.save(user).subscribe({
             next:() => {
-              this.tst.handleResult('success',"Employee Saved Successfully");
+              this.tst.handleResult('success',"User saved successfully");
               this.loadTable("");
               this.clearForm();
             },
@@ -353,13 +328,13 @@ export class EmployeeComponent implements OnInit{
 
   }
 
-  updateEmployee(employee:Employee){
+  updateUser(user:User){
 
     let errors = this.getErrors();
 
     if(errors != ""){
       this.dialog.open(WarningDialogComponent,{
-        data:{heading:"Errors - Employee Update ",message: "You Have Following Errors <br> " + errors}
+        data:{heading:"Errors - User Update ",message: "You Have Following Errors <br> " + errors}
       }).afterClosed().subscribe(res => {
         if(!res){
           return;
@@ -372,40 +347,32 @@ export class EmployeeComponent implements OnInit{
 
       if(updates != ""){
         this.dialog.open(WarningDialogComponent,{
-          data:{heading:"Updates - Employee Update ",message: "You Have Following Updates <br> " + updates}
+          data:{heading:"Updates - User Update ",message: "You Have Following Updates <br> " + updates}
         }).afterClosed().subscribe(res => {
           if(!res){
             return;
           }else{
 
-            const employees:Employee = {
-              id: employee.id,
+            const users:User = {
+              id: user.id,
               photo: this.imageempurl.split(',')[1],
-              number: this.employeeForm.controls['number'].value,
-              email: this.employeeForm.controls['email'].value,
-              firstname: this.employeeForm.controls['firstname'].value,
-              lastname: this.employeeForm.controls['lastname'].value,
-              dob: this.employeeForm.controls['dob'].value,
-              land: this.employeeForm.controls['land'].value,
-              mobile: this.employeeForm.controls['mobile'].value,
-              nic: this.employeeForm.controls['nic'].value,
-              description: this.employeeForm.controls['description'].value,
-              doassigned: this.employeeForm.controls['doassigned'].value,
+              number: this.userForm.controls['username'].value,
+              email: this.userForm.controls['password'].value,
+              description: this.userForm.controls['description'].value,
 
-              designation: {id: parseInt(this.employeeForm.controls['designation'].value)},
-              employeestatus: {id: parseInt(this.employeeForm.controls['employeestatus'].value)},
-              gender: {id: parseInt(this.employeeForm.controls['gender'].value)},
-              employeetype: {id: parseInt(this.employeeForm.controls['employeetype'].value)},
+              userstatus: {id: parseInt(this.userForm.controls['userstatus'].value)},
+              gender: {id: parseInt(this.userForm.controls['gender'].value)},
+              usertype: {id: parseInt(this.userForm.controls['usertype'].value)},
 
             }
-            this.currentOperation = "Employee Update ";
+            this.currentOperation = "User Update ";
 
             this.dialog.open(ConfirmDialogComponent,{data:this.currentOperation})
               .afterClosed().subscribe(res => {
               if(res) {
-                this.es.update(employees).subscribe({
+                this.es.update(users).subscribe({
                   next:() => {
-                    this.tst.handleResult('success',"Employee Updated Successfully");
+                    this.tst.handleResult('success',"User Updated Successfully");
                     this.loadTable("");
                     this.clearForm();
                   },
@@ -422,7 +389,7 @@ export class EmployeeComponent implements OnInit{
 
       }else{
         this.dialog.open(WarningDialogComponent,{
-          data:{heading:"Updates - Employee Update ",message: "No Fields Updated "}
+          data:{heading:"Updates - User Update ",message: "No Fields Updated "}
         }).afterClosed().subscribe(res =>{
           if(res){return;}
         })
@@ -431,18 +398,18 @@ export class EmployeeComponent implements OnInit{
 
   }
 
-  deleteEmployee(employee:Employee){
+  deleteUser(user:User){
 
-    const operation = "Delete Employee " + employee.lastname +" ("+ employee.number +") ";
+    const operation = "Delete User"+user.username+ user.name +") ";
     //console.log(operation);
 
     this.dialog.open(ConfirmDialogComponent,{data:operation})
       .afterClosed().subscribe((res:boolean) => {
-      if(res && employee.id){
-        this.es.delete(employee.id).subscribe({
+      if(res && user.id){
+        this.es.delete(user.id).subscribe({
           next: () => {
             this.loadTable("");
-            this.tst.handleResult("success","Employee Deleted Successfully");
+            this.tst.handleResult("success","User Deleted Successfully");
             this.clearForm();
           },
           error: (err:any) => {
@@ -453,20 +420,19 @@ export class EmployeeComponent implements OnInit{
     })
   }
 
-  generateRandomNumber(){
-    const numbers = this.employees.map(n => parseInt(<string>n.number?.substring(1)));
-    const maxno = Math.max(...numbers);
-    const nextno = maxno + 1;
-    const formattedNextNumber = 'E' + nextno.toString().padStart(5, '0');
-    this.employeeForm.controls['number'].setValue(formattedNextNumber);
-  }
+  // generateRandomNumber(){
+  //   const numbers = this.employees.map(n => parseInt(<string>n.number?.substring(1)));
+  //   const maxno = Math.max(...numbers);
+  //   const nextno = maxno + 1;
+  //   const formattedNextNumber = 'E' + nextno.toString().padStart(5, '0');
+  //   this.userForm.controls['number'].setValue(formattedNextNumber);
+  // }
 
   clearForm(){
 
-    this.employeeForm.reset();
-    this.employeeForm.controls['gender'].setValue(null);
-    this.employeeForm.controls['designation'].setValue(null);
-    this.employeeForm.controls['employeestatus'].setValue(null);
+    this.userForm.reset();
+    this.userForm.controls['designation'].setValue(null);
+    this.userForm.controls['userstatus'].setValue(null);
     this.enableButtons(true,false,false);
 
     this.clearImage();
@@ -475,10 +441,10 @@ export class EmployeeComponent implements OnInit{
 
   handleSearch(){
 
-    const sslastname  = this.employeeSearchForm.controls['sslastname'].value;
-    const ssnumber  = this.employeeSearchForm.controls['ssnumber'].value;
-    const ssgender  = this.employeeSearchForm.controls['ssgender'].value;
-    const ssdesignation  = this.employeeSearchForm.controls['ssdesignation'].value;
+    const sslastname  = this.userSearchForm.controls['sslastname'].value;
+    const ssnumber  = this.userSearchForm.controls['ssnumber'].value;
+    // const ssgender  = this.userSearchForm.controls['ssgender'].value;
+    // const ssdesignation  = this.userSearchForm.controls['ssdesignation'].value;
 
     let query = ""
 
@@ -491,20 +457,20 @@ export class EmployeeComponent implements OnInit{
     this.loadTable(query);
   }
 
-  clearSearch() {
+  clearSearch();{
 
     const operation = "Clear Search";
 
     this.dialog.open(ConfirmDialogComponent,{data:operation})
-      .afterClosed().subscribe(res => {
+      .afterClosed().subscribe((res: any) => {
       if(!res){
         return;
       }else{
-        this.employeeSearchForm.reset();
-        this.employeeSearchForm.controls['ssgender'].setValue('default');
-        this.employeeSearchForm.controls['ssdesignation'].setValue('default');
+        this.userSearchForm.reset();
+        // this.userSearchForm.controls['ssgender'].setValue('default');
+        // this.userSearchForm.controls['ssdesignation'].setValue('default');
         this.loadTable("");
       }
     });
   }
-}
+

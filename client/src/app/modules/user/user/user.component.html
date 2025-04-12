@@ -1,9 +1,9 @@
 <div class="px-4 py-3 mt-2 mx-3 flex flex-col bg-white shadow-md rounded-lg">
-  <div class=" absolute mt-0 ml-3 mr-4 text-[1.7em] font-semibold pointer-events-none">Employee</div>
+  <div class=" absolute mt-0 ml-3 mr-4 text-[1.7em] font-semibold pointer-events-none">User</div>
   <div class="text-sm breadcrumbs absolute mt-5 ml-3">
     <ul>
       <li class="text-gray-500"><a routerLink="../home">Home</a></li>
-      <li>Employee</li>
+      <li>User</li>
     </ul>
   </div>
 
@@ -11,39 +11,17 @@
     <div class="join ml-auto  scale-95">
       <input
         type="text"
-        placeholder="Last Name"
+        placeholder="Username"
         class="input input-bordered w-15 max-w-xs focus:outline-none text-sm join-item"
-        formControlName="sslastname"
+        formControlName="ssusername"
       />
 
       <input
         type="text"
-        placeholder="Employee Number"
+        placeholder="Password"
         class="input input-bordered w-15 max-w-xs bg-white border-gray-300 text-sm join-item"
-        formControlName="ssnumber"
+        formControlName="sspassword"
       />
-
-      <select class="select select-bordered w-15 border-gray-300 text-sm bg-white h-5 join-item"
-              formControlName="ssgender"
-              data-tip="Gender"
-      >
-        <option disabled value="default">Gender</option>
-
-        @for(gender of genders; track genders){
-          <option value="{{gender.id}}">{{gender.name}}</option>
-        }
-      </select>
-
-      <select class="select select-bordered w-15 border-gray-300 text-sm bg-white h-5 join-item"
-              formControlName="ssdesignation"
-              data-tip="Designation"
-      >
-        <option disabled value="default">Designation</option>
-
-        @for(designation of designations; track designations){
-          <option value="{{designation.id}}">{{designation.name}}</option>
-        }
-      </select>
 
       <button class="btn join-item border-black bg-gray-950 text-gray-300 hover:bg-gray-900" (click)="handleSearch()">
         <svg
@@ -130,19 +108,19 @@
           <label class="floating-label">Date Of Birth</label>
         </div>
 
-        <div class="flex flex-row items-center mb-3">
-          <div class="w-full relative px-2">
-            <select class=" select select-bordered w-full focus:outline-none"
-                    formControlName="gender"
-            >
-              <option disabled [ngValue]="null">Gender</option>
+<!--        <div class="flex flex-row items-center mb-3">-->
+<!--          <div class="w-full relative px-2">-->
+<!--            <select class=" select select-bordered w-full focus:outline-none"-->
+<!--                    formControlName="gender"-->
+<!--            >-->
+<!--              <option disabled [ngValue]="null">Gender</option>-->
 
-              @for(gender of genders; track genders){
-                <option [value]=gender.id>{{gender.name}}</option>
-              }
-            </select>
-            <label class="floating-labels-select">Gender</label>
-          </div>
+<!--              @for(gender of genders; track genders){-->
+<!--                <option [value]=gender.id>{{gender.name}}</option>-->
+<!--              }-->
+<!--            </select>-->
+<!--            <label class="floating-labels-select">Gender</label>-->
+<!--          </div>-->
 
           <div class="w-full relative px-2">
             <select class=" select select-bordered w-full focus:outline-none"
@@ -150,8 +128,8 @@
             >
               <option disabled [ngValue]="null">Status</option>
 
-              @for(employeestatus of employeestatuses; track employeestatuses){
-                <option value='{{employeestatus.id}}'>{{employeestatus.name}}</option>
+              @for(userStatus of userstatuses; track userstatuses){
+                <option value='{{userStatus.id}}'>{{userStatus.name}}</option>
               }
             </select>
             <label class="floating-labels-select">Status</label>
@@ -223,28 +201,28 @@
               formControlName="employeetype"
             >
               <option disabled [ngValue]="null">Employee Type</option>
-              @for (emptype of emptypes; track emptypes) {
-                <option value="{{emptype.id}}">{{emptype.name}}</option>
+              @for (usertype of usertypes; track usertypes) {
+                <option value="{{usertype.id}}">{{usertype.name}}</option>
               }
             </select>
-            <label class="floating-labels-select">Employee Type</label>
+            <label class="floating-labels-select">User Type</label>
           </div>
 
-          <div class="relative w-full px-2">
-            <select
-              class="peer select select-bordered w-full focus:outline-none"
-              formControlName="designation"
-            >
-              <option disabled [ngValue]="null">Designation</option>
+<!--          <div class="relative w-full px-2">-->
+<!--    <select-->
+<!--      class="peer select select-bordered w-full focus:outline-none"-->
+<!--      formControlName="designation"-->
+<!--    >-->
+<!--      <option disabled [ngValue]="null">Designation</option>-->
 
-              @for (designation of designations; track designations) {
-                <option value="{{designation.id}}">{{designation.name}}</option>
-              }
-            </select>
-            <label class="floating-labels-select">Designation</label>
-          </div>
+<!--      @for (designation of designations; track designations) {-->
+<!--        <option value="{{designation.id}}">{{designation.name}}</option>-->
+<!--      }-->
+<!--    </select>-->
+<!--    <label class="floating-labels-select">Designation</label>-->
+<!--  </div>-->
 
-        </div>
+    </div>
 
         <div class="relative w-full mb-3 px-2">
             <textarea
@@ -257,17 +235,14 @@
 
 
         <div class="flex flex-row mt-3 max-w-[99%] px-2 pb-5">
-          <button class="btn text-white bg-gray-950 mr-1 w-1/4 hover:bg-gray-900" [disabled]="!enaadd || !hasWriteAuthority" (click)="addEmployee()">Add</button>
-          <button class="btn text-white bg-gray-950 mr-1 w-1/4 hover:bg-gray-900" [disabled]="!enaupd || !hasUpdateAuthority" (click)="updateEmployee(employee)">Update</button>
-          <button class="btn text-white bg-gray-950 mr-1 w-1/4 hover:bg-gray-900" (click)="deleteEmployee(employee)"
+          <button class="btn text-white bg-gray-950 mr-1 w-1/4 hover:bg-gray-900" [disabled]="!enaadd || !hasWriteAuthority" (click)="addUser()">Add</button>
+          <button class="btn text-white bg-gray-950 mr-1 w-1/4 hover:bg-gray-900" [disabled]="!enaupd || !hasUpdateAuthority" (click)="updateUser(user)">Update</button>
+          <button class="btn text-white bg-gray-950 mr-1 w-1/4 hover:bg-gray-900" (click)="deleteUser(user)"
                   [disabled]="!hasDeleteAuthority || !enadel" >Delete</button>
           <button class="btn text-white bg-gray-950 w-1/4 hover:bg-gray-900" (click)="clearForm()">Clear</button>
         </div>
 
-      </form>
 
-
-    </div>
   </mat-grid-tile>
 
   <mat-grid-tile [colspan]="8" [rowspan]="10">
@@ -276,7 +251,7 @@
         <span class="ml-5 text-white text-lg ">Data List</span>
       </div>
       <div class="overflow-visible p-4 mt-2 flex flex-col bg-white rounded-lg">
-        @if(!isFailed || !isLoading || employees.length !== 0){
+        @if(!isFailed || !isLoading || users.length !== 0){
           <table class="text-left p-4 table" >
             <thead>
             <tr class="text-black bold">
@@ -289,7 +264,7 @@
             </thead>
 
             <tbody>
-              @for(employee of data | async; track employees){
+              @for(employee of data | async; track users){
                 <tr>
                   <td>
                     <div class="flex items-center gap-3 text-left">
@@ -308,10 +283,10 @@
                     </div>
                   </td>
 
-                  <td class="block items-center">
-                    <span>{{employee.designation.name}}</span>
-                    <!--                          <div class="block mt-2 badge pb-3 badge-neutral badge-sm w-32">Since 2015-02-04</div>-->
-                  </td>
+<!--                  <td class="block items-center">-->
+<!--                    <span>{{employee.designation.name}}</span>-->
+<!--                    &lt;!&ndash;                          <div class="block mt-2 badge pb-3 badge-neutral badge-sm w-32">Since 2015-02-04</div>&ndash;&gt;-->
+<!--                  </td>-->
 
                   <td>
                       <span class="flex items-center">
