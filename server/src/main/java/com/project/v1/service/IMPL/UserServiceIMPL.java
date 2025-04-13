@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -56,8 +57,12 @@ public class UserServiceIMPL implements UserService {
             throw new ResourceNotFoundException("Username Already Exists!");
         }
 
+        LocalDate today = LocalDate.now();
+
         User user = objectMapper.userDtoToUser(userDTO);
         user.setPassword(passwordEncoder.encode(userDTO.getPassword()));
+        user.setDocreated(today);
+        user.setDolastupdated(today);
         userRepository.save(user);
         return userDTO;
 

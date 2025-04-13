@@ -284,75 +284,74 @@ addUser(){
 }
 
 updateUser(user:User){
-  //
-  //   let errors = this.getErrors();
-  //
-  //   if(errors != ""){
-  //     this.dialog.open(WarningDialogComponent,{
-  //       data:{heading:"Errors - User Update ",message: "You Have Following Errors <br> " + errors}
-  //     }).afterClosed().subscribe(res => {
-  //       if(!res){
-  //         return;
-  //       }
-  //     });
-  //
-  //   }else{
-  //
-  //     let updates:string = this.getUpdates();
-  //
-  //     if(updates != ""){
-  //       this.dialog.open(WarningDialogComponent,{
-  //         data:{heading:"Updates - User Update ",message: "You Have Following Updates <br> " + updates}
-  //       }).afterClosed().subscribe(res => {
-  //         if(!res){
-  //           return;
-  //         }else{
-  //
-  //           const users:User = {
-  //             id: user.id,
-  //             photo: this.imageempurl.split(',')[1],
-  //             number: this.userForm.controls['username'].value,
-  //             email: this.userForm.controls['password'].value,
-  //             description: this.userForm.controls['description'].value,
-  //
-  //             userstatus: {id: parseInt(this.userForm.controls['userstatus'].value)},
-  //             gender: {id: parseInt(this.userForm.controls['gender'].value)},
-  //             usertype: {id: parseInt(this.userForm.controls['usertype'].value)},
-  //
-  //           }
-  //           this.currentOperation = "User Update ";
-  //
-  //           this.dialog.open(ConfirmDialogComponent,{data:this.currentOperation})
-  //             .afterClosed().subscribe(res => {
-  //             if(res) {
-  //               this.es.update(users).subscribe({
-  //                 next:() => {
-  //                   this.tst.handleResult('success',"User Updated Successfully");
-  //                   this.loadTable("");
-  //                   this.clearForm();
-  //                 },
-  //                 error:(err:any) => {
-  //                   this.tst.handleResult('failed',err.error.data.message);
-  //                   //console.log(err);
-  //                 }
-  //               });
-  //             }
-  //           })
-  //
-  //         }
-  //       });
-  //
-  //     }else{
-  //       this.dialog.open(WarningDialogComponent,{
-  //         data:{heading:"Updates - User Update ",message: "No Fields Updated "}
-  //       }).afterClosed().subscribe(res =>{
-  //         if(res){return;}
-  //       })
-  //     }
-  //   }
-  //
+
+    let errors = this.getErrors();
+
+    if(errors != ""){
+      this.dialog.open(WarningDialogComponent,{
+        data:{heading:"Errors - User Update ",message: "You Have Following Errors <br> " + errors}
+      }).afterClosed().subscribe(res => {
+        if(!res){
+          return;
+        }
+      });
+
+    }else{
+
+      let updates:string = this.getUpdates();
+
+      if(updates != ""){
+        this.dialog.open(WarningDialogComponent,{
+          data:{heading:"Updates - User Update ",message: "You Have Following Updates <br> " + updates}
+        }).afterClosed().subscribe(res => {
+          if(!res){
+            return;
+          }else{
+
+            const obj:User = {
+              id: user.id,
+              username: this.userForm.controls['username'].value,
+              password: this.userForm.controls['password'].value,
+              description: this.userForm.controls['description'].value,
+
+              userstatus: {id: parseInt(this.userForm.controls['userstatus'].value)},
+              employee: {id: parseInt(this.userForm.controls['employee'].value)},
+              role: {id: parseInt(this.userForm.controls['role'].value)},
+
+            }
+            this.currentOperation = "User Update ";
+
+            this.dialog.open(ConfirmDialogComponent,{data:this.currentOperation})
+              .afterClosed().subscribe(res => {
+              if(res) {
+                this.us.update(obj).subscribe({
+                  next:() => {
+                    this.tst.handleResult('success',"User Updated Successfully");
+                    this.loadTable("");
+                    this.clearForm();
+                  },
+                  error:(err:any) => {
+                    this.tst.handleResult('failed',err.error.data.message);
+                    //console.log(err);
+                  }
+                });
+              }
+            })
+
+          }
+        });
+
+      }else{
+        this.dialog.open(WarningDialogComponent,{
+          data:{heading:"Updates - User Update ",message: "No Fields Updated "}
+        }).afterClosed().subscribe(res =>{
+          if(res){return;}
+        })
+      }
+    }
+
 }
-//
+
 deleteUser(user:User){
   //
   //   const operation = "Delete User"+user.username+ user.name +") ";
