@@ -399,21 +399,23 @@ handleSearch(){
   this.loadTable(query);
 }
 
-clearSearch()
-{
+clearSearch(){
 
-  // const operation = "Clear Search";
-  //
-  // this.dialog.open(ConfirmDialogComponent,{data:operation})
-  //   .afterClosed().subscribe((res: any) => {
-  //   if(!res){
-  //     return;
-  //   }else{
-  //     this.userSearchForm.reset();
-  //     // this.userSearchForm.controls['ssgender'].setValue('default');
-  //     // this.userSearchForm.controls['ssdesignation'].setValue('default');
-  //     this.loadTable("");
-  //   }
-}
+  const operation = "Clear Search";
+
+  this.dialog.open(ConfirmDialogComponent,{data:operation})
+    .afterClosed().subscribe((res: any) => {
+    if (!res) {
+      return;
+    } else {
+      this.userSearchForm.reset();
+      this.userSearchForm.controls['ssrole'].setValue('default');
+      this.userSearchForm.controls['ssuserstatus'].setValue('default');
+      this.loadTable("");
+    }
+  })
+
+  }
+
 }
 
