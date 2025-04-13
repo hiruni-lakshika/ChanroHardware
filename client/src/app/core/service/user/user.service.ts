@@ -11,8 +11,12 @@ const apiurl = environment.apiUrl+"/users";
 export class UserService {
 
   constructor(private http: HttpClient) { }
+
   getAll(query:string){
-    console.log(apiurl+query);
-    return this.http.get<User[]>(apiurl+query)
+    return this.http.get<User[]>(apiurl+query);
+  }
+
+  save(user:User){
+    return this.http.post<User>(apiurl,user);
   }
 }

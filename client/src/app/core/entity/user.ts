@@ -4,12 +4,12 @@ import {UserStatus} from "./userstatus";
 
 
 export interface User {
-  id:number;
+  id?:number;
   username:string;
   password:string;
   employee:Employee;
-  docreated:string;
-  tocreated:string;
+  docreated?:string;
+  tocreated?:string;
   userstatus:UserStatus;
   role:Role;
   description:string;

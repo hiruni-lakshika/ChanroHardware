@@ -21,6 +21,8 @@ import {EmployeeService} from "../../../core/service/employee/employee.service";
 import {UserService} from "../../../core/service/user/user.service";
 import {RoleService} from "../../../core/service/user/role.service";
 import {UserstatusService} from "../../../core/service/user/userstatus.service";
+import {WarningDialogComponent} from "../../../shared/dialog/warning-dialog/warning-dialog.component";
+import {ConfirmDialogComponent} from "../../../shared/dialog/confirm-dialog/confirm-dialog.component";
 
 @Component({
   selector: 'app-user',
@@ -37,7 +39,7 @@ import {UserstatusService} from "../../../core/service/user/userstatus.service";
   templateUrl: './user.component.html',
   styleUrl: './user.component.scss'
 })
-export class UserComponent implements OnInit{
+export class UserComponent implements OnInit {
   isFailed = false;
   isLoading = false;
 
@@ -46,11 +48,11 @@ export class UserComponent implements OnInit{
   userstatuses: UserStatus[] = [];
   employees: Employee[] = [];
 
-  regexes:any;
+  regexes: any;
 
   oldUser!: User;
-  user!:User;
-  selectedRow!:User;
+  user!: User;
+  selectedRow!: User;
 
   currentOperation = '';
 
@@ -61,61 +63,61 @@ export class UserComponent implements OnInit{
   protected hasWriteAuthority = this.auths.hasAuthority("User-WRITE"); //need to be false
   protected hasReadAuthority = this.auths.hasAuthority("User-READ"); //need to be false
 
-  userSearchForm:FormGroup;
-  userForm!:FormGroup;
+  userSearchForm: FormGroup;
+  userForm!: FormGroup;
 
   dataSource!: MatTableDataSource<User>;
   data!: Observable<any>
   @ViewChild(MatPaginator) paginator!: MatPaginator;
 
-  enaadd:boolean = false;
-  enaupd:boolean = false;
-  enadel:boolean = false;
+  enaadd: boolean = false;
+  enaupd: boolean = false;
+  enadel: boolean = false;
 
   constructor(
-    private dialog:MatDialog,
-    private fb:FormBuilder,
-    private tst:ToastService,
-    private rx:RegexService,
-    private rs:RoleService,
-    private auths:AuthorizationService,
-    private cdr:ChangeDetectorRef,
-    private es:EmployeeService,
-    private us:UserService,
-    private uss:UserstatusService
+    private dialog: MatDialog,
+    private fb: FormBuilder,
+    private tst: ToastService,
+    private rx: RegexService,
+    private rs: RoleService,
+    private auths: AuthorizationService,
+    private cdr: ChangeDetectorRef,
+    private es: EmployeeService,
+    private us: UserService,
+    private uss: UserstatusService
   ) {
 
     this.userSearchForm = this.fb.group({
-      ssusername:[null],
-      ssrole:['default',Validators.required],
-      ssuserstatus:['default',Validators.required],
+      ssusername: [null],
+      ssrole: ['default', Validators.required],
+      ssuserstatus: ['default', Validators.required],
     });
 
     this.userForm = this.fb.group({
-      "username": new FormControl('',[Validators.required]),
-      "password": new FormControl('',[Validators.required]),
-      "description": new FormControl('',[Validators.required]),
-      "userstatus": new FormControl(null,[Validators.required]),
-      "role": new FormControl(null,[Validators.required]),
-      "employee": new FormControl(null,[Validators.required])
-    },{updateOn:'change'});
+      "username": new FormControl('', [Validators.required]),
+      "password": new FormControl('', [Validators.required]),
+      "description": new FormControl('', [Validators.required]),
+      "userstatus": new FormControl(null, [Validators.required]),
+      "role": new FormControl(null, [Validators.required]),
+      "employee": new FormControl(null, [Validators.required])
+    }, {updateOn: 'change'});
   }
 
   ngOnInit(): void {
     this.initialize();
   }
 
-  initialize(){
+  initialize() {
 
     this.loadTable("");
 
     this.rs.getAll().subscribe({
-     next:data => this.roles = data,
+      next: data => this.roles = data,
       //error: () => this.handleResult('failed')
     });
 
     this.rx.getRegexes('user').subscribe({
-      next:data => {
+      next: data => {
         this.regexes = data;
         this.createForm();
       },
@@ -123,18 +125,18 @@ export class UserComponent implements OnInit{
     });
 
     this.uss.getAll().subscribe({
-      next:data => this.userstatuses=data,
+      next: data => this.userstatuses = data,
     });
 
     this.es.getAll("").subscribe({
-      next:data => this.employees=data,
+      next: data => this.employees = data,
     });
   }
 
-  loadTable(query:string){
+  loadTable(query: string) {
     this.us.getAll(query).subscribe({
-      next:data =>{
-        this.users=data;
+      next: data => {
+        this.users = data;
         this.dataSource = new MatTableDataSource<User>(this.users);
         this.cdr.detectChanges();
         this.dataSource.paginator = this.paginator;
@@ -144,7 +146,7 @@ export class UserComponent implements OnInit{
   }
 
 
-  createForm(){
+  createForm() {
     this.userForm.controls['username'].setValidators([Validators.required, Validators.pattern(this.regexes['username']['regex'])]);
     this.userForm.controls['password'].setValidators([Validators.required, Validators.pattern(this.regexes['password']['regex'])]);
     this.userForm.controls['description'].setValidators([Validators.required, Validators.pattern(this.regexes['description']['regex'])]);
@@ -152,7 +154,9 @@ export class UserComponent implements OnInit{
     this.userForm.controls['employee'].setValidators([Validators.required]);
     this.userForm.controls['userstatus'].setValidators([Validators.required]);
 
-    Object.values(this.userForm.controls).forEach( control => { control.markAsTouched(); } );
+    Object.values(this.userForm.controls).forEach(control => {
+      control.markAsTouched();
+    });
 
     for (const controlName in this.userForm.controls) {
       const control = this.userForm.controls[controlName];
@@ -172,124 +176,114 @@ export class UserComponent implements OnInit{
       );
 
     }
-    this.enableButtons(true,false,false);
+    this.enableButtons(true, false, false);
   }
 
-  enableButtons(add:boolean, upd:boolean, del:boolean){
-    this.enaadd=add;
-    this.enaupd=upd;
-    this.enadel=del;
+  enableButtons(add: boolean, upd: boolean, del: boolean) {
+    this.enaadd = add;
+    this.enaupd = upd;
+    this.enadel = del;
   }
-  
-  fillForm(user:User){
-  //   this.enableButtons(false,true,true);
-  //
-  //   this.selectedRow = user;
-  //
-  //   this.user=this.user;
-  //  this.oldUser=this.user;
-  //
-  //   }
-  //
-  //   //this.employee.photo = "";
-  //
-  //
-  //   //this.employeeForm.patchValue(this.employee);
-  //
-  //   this.userForm.setValue({
-  //     username: this.user.username,
-  //     password: this.user.password,
-  //     salt: this.user.salt,
-  //     docreated: this.user.docreated,
-  //     tocreated:this.user.tocreated,
-  //     description: this.user.description,
-  //   });
-  //
-  //   this.userForm.markAsPristine();
-  //
+
+  fillForm(user: User) {
+    this.enableButtons(false, true, true);
+
+    this.selectedRow = user;
+
+    this.user = user;
+    this.oldUser = this.user;
+
+
+  this.userForm.setValue({
+    username: this.user.username,
+    password: this.user.password,
+    employee: this.user.employee?.id,
+    userstatus: this.user.userstatus?.id,
+    role:this.user.role?.id,
+    description: this.user.description,
+  });
+
+  this.userForm.markAsPristine();
+
+}
+
+
+getUpdates():string {
+  let updates: string = "";
+  for (const controlName in this.userForm.controls) {
+    const control = this.userForm.controls[controlName];
+    if (control.dirty) {
+      updates = updates + "<br>" + controlName.charAt(0).toUpperCase() + controlName.slice(1)+" Changed";
+    }
   }
-  //
-  // getUpdates():string {
-  //   let updates: string = "";
-  //   for (const controlName in this.userForm.controls) {
-  //     const control = this.userForm.controls[controlName];
-  //     if (control.dirty) {
-  //       updates = updates + "<br>" + controlName.charAt(0).toUpperCase() + controlName.slice(1)+" Changed";
-  //     }
-  //   }
-  //   return updates;
-  // }
-  //
-  // getErrors(){
-  //
-  //   let errors:string = "";
-  //
-  //   for(const controlName in this.userForm.controls){
-  //     const control = this.userForm.controls[controlName];
-  //     if(control.errors){
-  //       if(this.regexes[controlName] != undefined){
-  //         errors = errors + "<br>" + this.regexes[controlName]['message'];
-  //       }else{
-  //         errors = errors + "<br>Invalid " + controlName;
-  //       }
-  //     }
-  //   }
-  //   return errors;
-  // }
-  //
-  addUser(){
-  //   let errors = this.getErrors();
-  //
-  //   if(errors != ""){
-  //     this.dialog.open(WarningDialogComponent,{
-  //       data:{heading:"Errors - User Add ",message: "You Have Following Errors <br> " + errors}
-  //     }).afterClosed().subscribe(res => {
-  //       if(!res){
-  //         return;
-  //       }
-  //     });
-  //   }else{
-  //     //this.employee = this.employeeForm.getRawValue();
-  //     const user:User = {
-  //       id:this.userForm.controls['id'].value,
-  //       username: this.userForm.controls['username'].value,
-  //       password: this.userForm.controls['password'].value,
-  //       user: this.userForm.controls['user'].value,
-  //       docreated:this.userForm.controls['docreated'].value,
-  //       tocreated:this.userForm.controls['tocreated'].value,
-  //       description: this.userForm.controls['description'].value,
-  //
-  //
-  //       userstatus: {id: parseInt(this.userForm.controls['userstatus'].value)},
-  //       usertype: {id: parseInt(this.userForm.controls['usertype'].value)},
-  //
-  //     }
-  //
-  //     //console.log(user);
-  //
-  //     this.currentOperation = "User Add " +user.name + " ("+this.user.name) ";
-  //
-  //     this.dialog.open(ConfirmDialogComponent,{data:this.currentOperation})
-  //       .afterClosed().subscribe(res => {
-  //       if(res) {
-  //         this.es.save(user).subscribe({
-  //           next:() => {
-  //             this.tst.handleResult('success',"User saved successfully");
-  //             this.loadTable("");
-  //             this.clearForm();
-  //           },
-  //           error:(err:any) => {
-  //             this.tst.handleResult('failed',err.error.data.message);
-  //             //console.log(err);
-  //           }
-  //         });
-  //       }
-  //     })
-  //   }
-  //
+  return updates;
+}
+
+getErrors(){
+
+  let errors:string = "";
+
+  for(const controlName in this.userForm.controls){
+    const control = this.userForm.controls[controlName];
+    if(control.errors){
+      if(this.regexes[controlName] != undefined){
+        errors = errors + "<br>" + this.regexes[controlName]['message'];
+      }else{
+        errors = errors + "<br>Invalid " + controlName;
+      }
+    }
   }
-  //
-  updateUser(user:User){
+  return errors;
+}
+
+addUser(){
+    let errors = this.getErrors();
+
+    if(errors != ""){
+      this.dialog.open(WarningDialogComponent,{
+        data:{heading:"Errors - User Add ",message: "You Have Following Errors <br> " + errors}
+      }).afterClosed().subscribe(res => {
+        if(!res){
+          return;
+        }
+      });
+    }else{
+
+      const user:User = {
+        username: this.userForm.controls['username'].value,
+        password: this.userForm.controls['password'].value,
+        description: this.userForm.controls['description'].value,
+
+        userstatus: {id: parseInt(this.userForm.controls['userstatus'].value)},
+        employee: {id: parseInt(this.userForm.controls['employee'].value)},
+        role: {id: parseInt(this.userForm.controls['role'].value)},
+
+      }
+
+
+      this.currentOperation = "User Add " +user.username;
+
+      this.dialog.open(ConfirmDialogComponent,{data:this.currentOperation})
+        .afterClosed().subscribe(res => {
+        if(res) {
+          this.us.save(user).subscribe({
+            next:() => {
+              this.tst.handleResult('success',"User saved successfully");
+              this.loadTable("");
+              this.clearForm();
+            },
+            error:(err:any) => {
+              this.tst.handleResult('failed',err.error.data.message);
+              //console.log(err);
+            }
+          });
+        }
+      })
+    }
+
+}
+
+updateUser(user:User){
   //
   //   let errors = this.getErrors();
   //
@@ -357,9 +351,9 @@ export class UserComponent implements OnInit{
   //     }
   //   }
   //
-  }
-  //
-  deleteUser(user:User){
+}
+//
+deleteUser(user:User){
   //
   //   const operation = "Delete User"+user.username+ user.name +") ";
   //   //console.log(operation);
@@ -379,59 +373,61 @@ export class UserComponent implements OnInit{
   //       });
   //     }
   //   })
-  }
-  //
-  // // generateRandomNumber(){
-  // //   const numbers = this.employees.map(n => parseInt(<string>n.number?.substring(1)));
-  // //   const maxno = Math.max(...numbers);
-  // //   const nextno = maxno + 1;
-  // //   const formattedNextNumber = 'E' + nextno.toString().padStart(5, '0');
-  // //   this.userForm.controls['number'].setValue(formattedNextNumber);
-  // // }
-  //
-  clearForm(){
-  //
-  //   this.userForm.reset();
-  //   this.userForm.controls['designation'].setValue(null);
-  //   this.userForm.controls['userstatus'].setValue(null);
-  //   this.enableButtons(true,false,false);
-  //
-  //   this.clearImage();
-  //
-  }
-  //
-  handleSearch(){
+}
+//
+// // generateRandomNumber(){
+// //   const numbers = this.employees.map(n => parseInt(<string>n.number?.substring(1)));
+// //   const maxno = Math.max(...numbers);
+// //   const nextno = maxno + 1;
+// //   const formattedNextNumber = 'E' + nextno.toString().padStart(5, '0');
+// //   this.userForm.controls['number'].setValue(formattedNextNumber);
+// // }
+//
+clearForm(){
 
-    // const sslastname  = this.userSearchForm.controls['sslastname'].value;
-    // const ssnumber  = this.userSearchForm.controls['ssnumber'].value;
-    // // const ssgender  = this.userSearchForm.controls['ssgender'].value;
-    // // const ssdesignation  = this.userSearchForm.controls['ssdesignation'].value;
-    //
-    // let query = ""
-    //
-    // if(ssnumber != null && ssnumber.trim() !="") query = query + "&number=" + ssnumber;
-    // if(sslastname != null && sslastname.trim() !="") query = query + "&lastname=" + sslastname;
-    // if(ssgender != 'default') query = query + "&genderid=" + parseInt(ssgender);
-    // if(ssdesignation != 'default') query = query + "&designationid=" + parseInt(ssdesignation);
-    //
-    // if(query != "") query = query.replace(/^./, "?")
-    // this.loadTable(query);
-  }
+    this.userForm.reset();
+    this.userForm.controls['role'].setValue(null);
+    this.userForm.controls['employee'].setValue(null);
+    this.userForm.controls['userstatus'].setValue(null);
+    this.enableButtons(true,false,false);
 
-  clearSearch(){
 
-    // const operation = "Clear Search";
-    //
-    // this.dialog.open(ConfirmDialogComponent,{data:operation})
-    //   .afterClosed().subscribe((res: any) => {
-    //   if(!res){
-    //     return;
-    //   }else{
-    //     this.userSearchForm.reset();
-    //     // this.userSearchForm.controls['ssgender'].setValue('default');
-    //     // this.userSearchForm.controls['ssdesignation'].setValue('default');
-    //     this.loadTable("");
-    //   }
-    }
-  }
+}
+//
+handleSearch()
+{
+
+  // const sslastname  = this.userSearchForm.controls['sslastname'].value;
+  // const ssnumber  = this.userSearchForm.controls['ssnumber'].value;
+  // // const ssgender  = this.userSearchForm.controls['ssgender'].value;
+  // // const ssdesignation  = this.userSearchForm.controls['ssdesignation'].value;
+  //
+  // let query = ""
+  //
+  // if(ssnumber != null && ssnumber.trim() !="") query = query + "&number=" + ssnumber;
+  // if(sslastname != null && sslastname.trim() !="") query = query + "&lastname=" + sslastname;
+  // if(ssgender != 'default') query = query + "&genderid=" + parseInt(ssgender);
+  // if(ssdesignation != 'default') query = query + "&designationid=" + parseInt(ssdesignation);
+  //
+  // if(query != "") query = query.replace(/^./, "?")
+  // this.loadTable(query);
+}
+
+clearSearch()
+{
+
+  // const operation = "Clear Search";
+  //
+  // this.dialog.open(ConfirmDialogComponent,{data:operation})
+  //   .afterClosed().subscribe((res: any) => {
+  //   if(!res){
+  //     return;
+  //   }else{
+  //     this.userSearchForm.reset();
+  //     // this.userSearchForm.controls['ssgender'].setValue('default');
+  //     // this.userSearchForm.controls['ssdesignation'].setValue('default');
+  //     this.loadTable("");
+  //   }
+}
+}
 
