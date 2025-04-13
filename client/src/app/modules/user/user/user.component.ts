@@ -353,35 +353,26 @@ updateUser(user:User){
 }
 
 deleteUser(user:User){
-  //
-  //   const operation = "Delete User"+user.username+ user.name +") ";
-  //   //console.log(operation);
-  //
-  //   this.dialog.open(ConfirmDialogComponent,{data:operation})
-  //     .afterClosed().subscribe((res:boolean) => {
-  //     if(res && user.id){
-  //       this.es.delete(user.id).subscribe({
-  //         next: () => {
-  //           this.loadTable("");
-  //           this.tst.handleResult("success","User Deleted Successfully");
-  //           this.clearForm();
-  //         },
-  //         error: (err:any) => {
-  //           this.tst.handleResult("failed",err.error.data.message);
-  //         }
-  //       });
-  //     }
-  //   })
+
+    const operation = "Delete User (" + user.username + ") ";
+
+    this.dialog.open(ConfirmDialogComponent,{data:operation})
+      .afterClosed().subscribe((res:boolean) => {
+      if(res && user.id){
+        this.us.delete(user.id).subscribe({
+          next: () => {
+            this.loadTable("");
+            this.tst.handleResult("success","User Deleted Successfully");
+            this.clearForm();
+          },
+          error: (err:any) => {
+            this.tst.handleResult("failed",err.error.data.message);
+          }
+        });
+      }
+    })
 }
-//
-// // generateRandomNumber(){
-// //   const numbers = this.employees.map(n => parseInt(<string>n.number?.substring(1)));
-// //   const maxno = Math.max(...numbers);
-// //   const nextno = maxno + 1;
-// //   const formattedNextNumber = 'E' + nextno.toString().padStart(5, '0');
-// //   this.userForm.controls['number'].setValue(formattedNextNumber);
-// // }
-//
+
 clearForm(){
 
     this.userForm.reset();
@@ -390,26 +381,22 @@ clearForm(){
     this.userForm.controls['userstatus'].setValue(null);
     this.enableButtons(true,false,false);
 
-
 }
-//
-handleSearch()
-{
 
-  // const sslastname  = this.userSearchForm.controls['sslastname'].value;
-  // const ssnumber  = this.userSearchForm.controls['ssnumber'].value;
-  // // const ssgender  = this.userSearchForm.controls['ssgender'].value;
-  // // const ssdesignation  = this.userSearchForm.controls['ssdesignation'].value;
-  //
-  // let query = ""
-  //
-  // if(ssnumber != null && ssnumber.trim() !="") query = query + "&number=" + ssnumber;
-  // if(sslastname != null && sslastname.trim() !="") query = query + "&lastname=" + sslastname;
-  // if(ssgender != 'default') query = query + "&genderid=" + parseInt(ssgender);
-  // if(ssdesignation != 'default') query = query + "&designationid=" + parseInt(ssdesignation);
-  //
-  // if(query != "") query = query.replace(/^./, "?")
-  // this.loadTable(query);
+handleSearch(){
+
+  const ssusername  = this.userSearchForm.controls['ssusername'].value;
+  const ssrole  = this.userSearchForm.controls['ssrole'].value;
+  const ssuserstatus  = this.userSearchForm.controls['ssuserstatus'].value;
+
+  let query = ""
+
+  if(ssusername != null && ssusername.trim() !="") query = query + "&username=" + ssusername;
+  if(ssrole != 'default') query = query + "&roleid=" + parseInt(ssrole);
+  if(ssuserstatus != 'default') query = query + "&userstatusid=" + parseInt(ssuserstatus);
+
+  if(query != "") query = query.replace(/^./, "?")
+  this.loadTable(query);
 }
 
 clearSearch()

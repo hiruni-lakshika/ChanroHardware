@@ -39,7 +39,7 @@ public class UserServiceIMPL implements UserService {
 
                 Stream<UserDTO> stream = userDTOList.stream();
 
-                if(username != null ) stream = stream.filter(u -> u.getUsername().equals(username));
+                if(username != null ) stream = stream.filter(u -> u.getUsername().contains(username));
                 if(userstatusid != null ) stream = stream.filter(u -> u.getUserstatus().getId() == Integer.parseInt(userstatusid));
                 if(roleid != null ) stream = stream.filter(u -> u.getRole().getId() == Integer.parseInt(roleid));
 
@@ -77,12 +77,17 @@ public class UserServiceIMPL implements UserService {
         if(!userrec.getUsername().equals(userDTO.getUsername()) && userRepository.existsByUsername(userDTO.getUsername())){
             throw new ResourceNotFoundException("Username Already Exists!");
         }
+        LocalDate today = LocalDate.now();
 
         User user = objectMapper.userDtoToUser(userDTO);
 
         if(!userDTO.getPassword().equals(userrec.getPassword())){
             user.setPassword(passwordEncoder.encode(userDTO.getPassword()));
         }
+
+        user.setDolastupdated(today);
+        user.setDocreated(userrec.getDocreated());
+
         userRepository.save(user);
         return userDTO;
     }
