@@ -13,7 +13,6 @@ import {RoleService} from "../../core/service/user/role.service";
 import {AuthorizationService} from "../../core/service/auth/authorization.service";
 import {Observable} from "rxjs";
 import {Role} from "../../core/entity/role";
-import * as Module from "node:module";
 import {AsyncPipe} from "@angular/common";
 import {RouterLink} from "@angular/router";
 import {PrivilegeService} from "../../core/service/privilege/privilege.service";
@@ -21,6 +20,7 @@ import {Privilege} from "../../core/entity/privilege";
 import {Operation} from "../../core/entity/operation";
 import {ModuleService} from "../../core/service/privilege/module.service";
 import {OperationService} from "../../core/service/privilege/operation.service";
+import {Module} from "../../core/entity/module";
 
 @Component({
   selector: 'app-privilege',
