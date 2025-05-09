@@ -30,10 +30,11 @@ public class SupplierServiceIMPL implements SupplierService {
     public List<SupplierDTO> getAll(HashMap<String, String> params) {
         List<Supplier> suppliers = supplierRepository.findAll();
         if (suppliers.isEmpty()) {
-            List<SupplierDTO> supplierDTOs = new ArrayList<>();
+            List<SupplierDTO> dtos = new ArrayList<>();
             if (params.isEmpty()) {
                 return dtos;
             } else {
+
                 String name = params.get("name");
                 String email = params.get("email");
                 String employeeid = params.get("employeeid");
@@ -46,49 +47,50 @@ public class SupplierServiceIMPL implements SupplierService {
                     stream = stream.filter(s -> s.getEmployee().getId() == Integer.parseInt(employeeid));
 
                 return stream.collect(Collectors.toList());
-            }else{
-                throw new ResourceNotFoundException("Supplier not found");
             }
+        } else {
+            throw new ResourceNotFoundException("Supplier not found");
         }
     }
+
     @Override
     public SupplierDTO save(SupplierDTO supplierDTO) {
 
-            if (supplierRepository.existsByEmail(supplierDTO.gotEmail())){
-                throw new ResourceNotFoundException("Supplier Email Already Exists");
-            }
+        if (supplierRepository.existsByEmail(supplierDTO.getEmail())) {
+            throw new ResourceNotFoundException("Supplier Email Already Exists");
+        }
 
-            if (supplierRepository.existsByTpoffice(supplierDTO.gotTpoffice())){
-                throw new ResourceNotFoundException("Supplier Number Already Exists");
-            }
+        if (supplierRepository.existsByTpoffice(supplierDTO.getTpoffice())) {
+            throw new ResourceNotFoundException("Supplier Number Already Exists");
+        }
 
-           Supplier supplier = objectMapper.employeeDtoToSupplier(supplieDTO);
-            supplierRepository.save(supplier);
-            return supplierDTO;
+        Supplier supplier = objectMapper.supplierDtoToSupplier(supplierDTO);
+        supplierRepository.save(supplier);
+        return supplierDTO;
     }
 
     @Override
     public SupplierDTO update(SupplierDTO supplierDTO) {
 
-            Supplier supprec = supplierRepository.findById(supplierDTO.getId()).orElseThrow(()-> new ResourceNotFoundException("Supplier Not Found"));
+        Supplier supprec = supplierRepository.findById(supplierDTO.getId()).orElseThrow(() -> new ResourceNotFoundException("Supplier Not Found"));
 
-            if(!supprec.getEmail().equals(supplierDTO.getEmail()) && supplierRepository.existsByEmail(supplierDTO.getEmail())){
-                throw new ResourceAlreadyExistException("Email Already Exists");
-            }
-
-            if(!supprec.getTpoffice().equals(supplierDTO.getTpoffice()) && supplierRepository.existsByTpoffice(supplierDTO.getTpoffice())){
-                throw new ResourceAlreadyExistException("Telephone Number Already Exists");
-            }
-
-            Supplier supplier = objectMapper.supplierDtoToSupplier(supplierDTO);
-            supplierRepository.save(supplier);
-            return supplierDTO;
+        if (!supprec.getEmail().equals(supplierDTO.getEmail()) && supplierRepository.existsByEmail(supplierDTO.getEmail())) {
+            throw new ResourceAlreadyExistException("Email Already Exists");
         }
+
+        if (!supprec.getTpoffice().equals(supplierDTO.getTpoffice()) && supplierRepository.existsByTpoffice(supplierDTO.getTpoffice())) {
+            throw new ResourceAlreadyExistException("Telephone Number Already Exists");
+        }
+
+        Supplier supplier = objectMapper.supplierDtoToSupplier(supplierDTO);
+        supplierRepository.save(supplier);
+        return supplierDTO;
+    }
 
 
     @Override
     public String delete(Integer id) {
-        Supplier supplier = supplierRepository.findById(id).orElseThrow(()-> new ResourceNotFoundException("Supplier Not Found"));
+        Supplier supplier = supplierRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Supplier Not Found"));
         supplierRepository.delete(supplier);
         return "Successfully Deleted";
     }

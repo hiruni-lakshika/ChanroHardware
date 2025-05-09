@@ -38,4 +38,6 @@ public interface ObjectMapper {
     List<ModuleDTO> moduleListToDtoList(List<Module> modules);
 
     List<OperationDTO> operationListToDtoList(List<Operation> operations);
+
+    Supplier supplierDtoToSupplier(SupplierDTO supplierDTO);
 }
