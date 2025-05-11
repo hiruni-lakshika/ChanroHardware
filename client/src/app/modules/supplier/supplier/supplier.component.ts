@@ -3,19 +3,11 @@ import {FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators} fr
 import {MatGridList, MatGridTile} from "@angular/material/grid-list";
 import {MatPaginator} from "@angular/material/paginator";
 import {Employee} from "../../../core/entity/employee";
-import {Gender} from "../../../core/entity/gender";
-import {Designation} from "../../../core/entity/designation";
-import {EmployeeType} from "../../../core/entity/employeetype";
-import {EmployeeStatus} from "../../../core/entity/employeestatus";
 import {MatTableDataSource} from "@angular/material/table";
 import {Observable} from "rxjs";
 import {MatDialog} from "@angular/material/dialog";
 import {EmployeeService} from "../../../core/service/employee/employee.service";
-import {GenderService} from "../../../core/service/employee/gender.service";
-import {DesignationService} from "../../../core/service/employee/designation.service";
 import {ToastService} from "../../../core/util/toast.service";
-import {EmployeetypeService} from "../../../core/service/employee/employeetype.service";
-import {EmployeestatusService} from "../../../core/service/employee/employeestatus.service";
 import {AsyncPipe} from "@angular/common";
 import {RegexService} from "../../../core/service/regexes/regex.service";
 import {ConfirmDialogComponent} from "../../../shared/dialog/confirm-dialog/confirm-dialog.component";
@@ -28,6 +20,8 @@ import {CategoryService} from "../../../core/service/supplier/category.service";
 import {SupplierStatus} from "../../../core/entity/supplierstatus";
 import {Supplier} from "../../../core/entity/supplier";
 import {SupplierService} from "../../../core/service/supplier/supplier.service";
+import {RouterLink} from "@angular/router";
+import {Category} from "../../../core/entity/category";
 
 @Component({
   selector: 'app-employee',
@@ -39,7 +33,8 @@ import {SupplierService} from "../../../core/service/supplier/supplier.service";
     MatPaginator,
     AsyncPipe,
     PageLoadingComponent,
-    PageErrorComponent
+    PageErrorComponent,
+    RouterLink
   ],
   templateUrl: './supplier.component.html',
   styleUrl: './supplier.component.scss'
@@ -51,15 +46,13 @@ export class SupplierComponent implements OnInit{
   employees: Employee[] = [];
   suppliers: Supplier[] = [];
   supplierstatuses: SupplierStatus[] = [];
+  categories: Category[] = [];
 
   regexes:any;
 
   supplier!:Supplier;
-
-
+  oldSupplier!: Supplier;
   currentOperation = '';
-
-  imageempurl: any = 'assets/tabledefault.png';
 
   protected hasUpdateAuthority = this.auths.hasAuthority("Supplier-UPDATE"); //need to be false
   protected hasDeleteAuthority = this.auths.hasAuthority("Supplier-DELETE"); //need to be false
@@ -129,10 +122,15 @@ export class SupplierComponent implements OnInit{
       //error: () => this.handleResult('failed')
     });
 
+    this.cs.getAll().subscribe({
+      next:data => this.categories = data,
+      //error: () => this.handleResult('failed')
+    });
+
     this.rs.getRegexes('supplier').subscribe({
       next:data => {
         this.regexes = data;
-        // this.createForm();
+        this.createForm();
       },
       error: () => this.regexes = [] || undefined
     });
@@ -152,45 +150,40 @@ export class SupplierComponent implements OnInit{
   }
 
 
-  // createForm(){
-  //   this.employeeForm.controls['number'].setValidators([Validators.required]);
-  //   this.employeeForm.controls['firstname'].setValidators([Validators.required]);
-  //   this.employeeForm.controls['lastname'].setValidators([Validators.required]);
-  //   this.employeeForm.controls['gender'].setValidators([Validators.required]);
-  //   this.employeeForm.controls['nic'].setValidators([Validators.required]);
-  //   this.employeeForm.controls['dob'].setValidators([Validators.required]);
-  //   this.employeeForm.controls['photo'].setValidators([Validators.required]);
-  //   this.employeeForm.controls['doassigned'].setValidators([Validators.required]);
-  //   this.employeeForm.controls['email'].setValidators([Validators.required]);
-  //   this.employeeForm.controls['mobile'].setValidators([Validators.required]);
-  //   this.employeeForm.controls['land'].setValidators([Validators.required]);
-  //   this.employeeForm.controls['designation'].setValidators([Validators.required]);
-  //   this.employeeForm.controls['description'].setValidators([Validators.required]);
-  //   this.employeeForm.controls['employeetype'].setValidators([Validators.required]);
-  //   this.employeeForm.controls['employeestatus'].setValidators([Validators.required]);
-  //
-  //   Object.values(this.employeeForm.controls).forEach( control => { control.markAsTouched(); } );
-  //
-  //   for (const controlName in this.employeeForm.controls) {
-  //     const control = this.employeeForm.controls[controlName];
-  //     control.valueChanges.subscribe(value => {
-  //
-  //         if (this.oldEmployee != undefined && control.valid) {
-  //           // @ts-ignore
-  //           if (value === this.employee[controlName]) {
-  //             control.markAsPristine();
-  //           } else {
-  //             control.markAsDirty();
-  //           }
-  //         } else {
-  //           control.markAsPristine();
-  //         }
-  //       }
-  //     );
-  //
-  //   }
-  //   this.enableButtons(true,false,false);
-  // }
+  createForm(){
+    this.supplierForm.controls['name'].setValidators([Validators.required]);
+    this.supplierForm.controls['address'].setValidators([Validators.required]);
+    this.supplierForm.controls['tpoffice'].setValidators([Validators.required]);
+    this.supplierForm.controls['email'].setValidators([Validators.required]);
+    this.supplierForm.controls['contactperson'].setValidators([Validators.required]);
+    this.supplierForm.controls['tpcontact'].setValidators([Validators.required]);
+    this.supplierForm.controls['doregistered'].setValidators([Validators.required]);
+    this.supplierForm.controls['employee'].setValidators([Validators.required]);
+    this.supplierForm.controls['supplierstatus'].setValidators([Validators.required]);
+    this.supplierForm.controls['description'].setValidators([Validators.required]);
+
+    Object.values(this.supplierForm.controls).forEach( control => { control.markAsTouched(); } );
+
+    for (const controlName in this.supplierForm.controls) {
+      const control = this.supplierForm.controls[controlName];
+      control.valueChanges.subscribe(value => {
+
+          if (this.oldSupplier != undefined && control.valid) {
+            // @ts-ignore
+            if (value === this.supplier[controlName]) {
+              control.markAsPristine();
+            } else {
+              control.markAsDirty();
+            }
+          } else {
+            control.markAsPristine();
+          }
+        }
+      );
+
+    }
+    this.enableButtons(true,false,false);
+  }
 
   enableButtons(add:boolean, upd:boolean, del:boolean){
     this.enaadd=add;
@@ -198,30 +191,23 @@ export class SupplierComponent implements OnInit{
     this.enadel=del;
   }
 
-  fillForm(employee:Employee){
+  fillForm(data:Supplier){
     this.enableButtons(false,true,true);
 
-    // this.selectedRow = employee;
-    //
-    // this.employee = employee;
-    // this.oldEmployee = this.employee;
+    this.supplier = data;
+    this.oldSupplier = this.supplier;
 
     this.supplierForm.setValue({
-      // firstname: this.employee.firstname,
-      // lastname: this.employee.lastname,
-      // nic: this.employee.nic,
-      // email: this.employee.email,
-      // mobile: this.employee.mobile,
-      // land: this.employee.land,
-      // doassigned: this.employee.doassigned,
-      // number: this.employee.number,
-      // gender: this.employee.gender?.id,
-      // designation: this.employee.designation?.id,
-      // employeestatus: this.employee.employeestatus?.id,
-      // employeetype: this.employee.employeetype?.id,
-      // dob: this.employee.dob,
-      // description: this.employee.description,
-      // photo: "",
+      name: this.supplier.name,
+      address: this.supplier.address,
+      tpoffice: this.supplier.tpoffice,
+      email: this.supplier.email,
+      contactperson: this.supplier.contactperson,
+      tpcontact: this.supplier.tpcontact,
+      doregistered: this.supplier.doregistered,
+      employee: this.supplier.employee?.id,
+      supplierstatus: this.supplier.supplierstatus?.id,
+      description: this.supplier.description,
     });
 
     this.supplierForm.markAsPristine();
@@ -256,48 +242,41 @@ export class SupplierComponent implements OnInit{
     return errors;
   }
 
-  addEmployee(){
+  add(){
     let errors = this.getErrors();
 
     if(errors != ""){
       this.dialog.open(WarningDialogComponent,{
-        data:{heading:"Errors - Employee Add ",message: "You Have Following Errors <br> " + errors}
+        data:{heading:"Errors - Supplier Add ",message: "You Have Following Errors <br> " + errors}
       }).afterClosed().subscribe(res => {
         if(!res){
           return;
         }
       });
     }else{
-      //this.employee = this.employeeForm.getRawValue();
-      const employee:Employee = {
-        number: this.supplierForm.controls['number'].value,
+      const data:Supplier = {
+        name: this.supplierForm.controls['name'].value,
+        address: this.supplierForm.controls['address'].value,
+        tpoffice: this.supplierForm.controls['tpoffice'].value,
         email: this.supplierForm.controls['email'].value,
-        firstname: this.supplierForm.controls['firstname'].value,
-        lastname: this.supplierForm.controls['lastname'].value,
-        dob: this.supplierForm.controls['dob'].value,
-        land: this.supplierForm.controls['land'].value,
-        mobile: this.supplierForm.controls['mobile'].value,
-        nic: this.supplierForm.controls['nic'].value,
+        contactperson: this.supplierForm.controls['contactperson'].value,
+        tpcontact: this.supplierForm.controls['tpcontact'].value,
+        doregistered: this.supplierForm.controls['doregistered'].value,
         description: this.supplierForm.controls['description'].value,
-        doassigned: this.supplierForm.controls['doassigned'].value,
 
-        designation: {id: parseInt(this.supplierForm.controls['designation'].value)},
-        employeestatus: {id: parseInt(this.supplierForm.controls['employeestatus'].value)},
-        gender: {id: parseInt(this.supplierForm.controls['gender'].value)},
-        employeetype: {id: parseInt(this.supplierForm.controls['employeetype'].value)},
+        supplierstatus: {id: parseInt(this.supplierForm.controls['supplierstatus'].value)},
+        employee: {id: parseInt(this.supplierForm.controls['employee'].value)},
 
       }
 
-      //console.log(employee);
-
-      this.currentOperation = "Employee Add " +employee.firstname + " ("+employee.number+ ") ";
+      this.currentOperation = "Supplier Add ";
 
       this.dialog.open(ConfirmDialogComponent,{data:this.currentOperation})
         .afterClosed().subscribe(res => {
         if(res) {
-          this.es.save(employee).subscribe({
+          this.ss.save(data).subscribe({
             next:() => {
-              this.tst.handleResult('success',"Employee Saved Successfully");
+              this.tst.handleResult('success',"Supplier Saved Successfully");
               this.loadTable("");
               this.clearForm();
             },
@@ -312,13 +291,13 @@ export class SupplierComponent implements OnInit{
 
   }
 
-  updateEmployee(employee:Employee){
+  update(supplier:Supplier){
 
     let errors = this.getErrors();
 
     if(errors != ""){
       this.dialog.open(WarningDialogComponent,{
-        data:{heading:"Errors - Employee Update ",message: "You Have Following Errors <br> " + errors}
+        data:{heading:"Errors - Supplier Update ",message: "You Have Following Errors <br> " + errors}
       }).afterClosed().subscribe(res => {
         if(!res){
           return;
@@ -331,39 +310,35 @@ export class SupplierComponent implements OnInit{
 
       if(updates != ""){
         this.dialog.open(WarningDialogComponent,{
-          data:{heading:"Updates - Employee Update ",message: "You Have Following Updates <br> " + updates}
+          data:{heading:"Updates - Supplier Update ",message: "You Have Following Updates <br> " + updates}
         }).afterClosed().subscribe(res => {
           if(!res){
             return;
           }else{
 
-            const employees:Employee = {
-              id: employee.id,
-              number: this.supplierForm.controls['number'].value,
+            const data:Supplier = {
+              id: supplier.id,
+              name: this.supplierForm.controls['name'].value,
+              address: this.supplierForm.controls['address'].value,
+              tpoffice: this.supplierForm.controls['tpoffice'].value,
               email: this.supplierForm.controls['email'].value,
-              firstname: this.supplierForm.controls['firstname'].value,
-              lastname: this.supplierForm.controls['lastname'].value,
-              dob: this.supplierForm.controls['dob'].value,
-              land: this.supplierForm.controls['land'].value,
-              mobile: this.supplierForm.controls['mobile'].value,
-              nic: this.supplierForm.controls['nic'].value,
+              contactperson: this.supplierForm.controls['contactperson'].value,
+              tpcontact: this.supplierForm.controls['tpcontact'].value,
+              doregistered: this.supplierForm.controls['doregistered'].value,
               description: this.supplierForm.controls['description'].value,
-              doassigned: this.supplierForm.controls['doassigned'].value,
 
-              designation: {id: parseInt(this.supplierForm.controls['designation'].value)},
-              employeestatus: {id: parseInt(this.supplierForm.controls['employeestatus'].value)},
-              gender: {id: parseInt(this.supplierForm.controls['gender'].value)},
-              employeetype: {id: parseInt(this.supplierForm.controls['employeetype'].value)},
+              supplierstatus: {id: parseInt(this.supplierForm.controls['supplierstatus'].value)},
+              employee: {id: parseInt(this.supplierForm.controls['employee'].value)},
 
             }
-            this.currentOperation = "Employee Update ";
+            this.currentOperation = "Supplier Update ";
 
             this.dialog.open(ConfirmDialogComponent,{data:this.currentOperation})
               .afterClosed().subscribe(res => {
               if(res) {
-                this.es.update(employees).subscribe({
+                this.ss.update(data).subscribe({
                   next:() => {
-                    this.tst.handleResult('success',"Employee Updated Successfully");
+                    this.tst.handleResult('success',"Supplier Updated Successfully");
                     this.loadTable("");
                     this.clearForm();
                   },
@@ -380,7 +355,7 @@ export class SupplierComponent implements OnInit{
 
       }else{
         this.dialog.open(WarningDialogComponent,{
-          data:{heading:"Updates - Employee Update ",message: "No Fields Updated "}
+          data:{heading:"Updates - Supplier Update ",message: "No Fields Updated "}
         }).afterClosed().subscribe(res =>{
           if(res){return;}
         })
@@ -389,15 +364,15 @@ export class SupplierComponent implements OnInit{
 
   }
 
-  deleteEmployee(employee:Employee){
+  delete(supplier:Supplier){
 
-    const operation = "Delete Employee " + employee.lastname +" ("+ employee.number +") ";
+    const operation = "Delete Supplier ";
     //console.log(operation);
 
     this.dialog.open(ConfirmDialogComponent,{data:operation})
       .afterClosed().subscribe((res:boolean) => {
-      if(res && employee.id){
-        this.es.delete(employee.id).subscribe({
+      if(res && supplier.id){
+        this.ss.delete(supplier.id).subscribe({
           next: () => {
             this.loadTable("");
             this.tst.handleResult("success","Employee Deleted Successfully");
@@ -415,9 +390,8 @@ export class SupplierComponent implements OnInit{
   clearForm(){
 
     this.supplierForm.reset();
-    this.supplierForm.controls['gender'].setValue(null);
-    this.supplierForm.controls['designation'].setValue(null);
-    this.supplierForm.controls['employeestatus'].setValue(null);
+    this.supplierForm.controls['employee'].setValue(null);
+    this.supplierForm.controls['supplierstatus'].setValue(null);
     this.enableButtons(true,false,false);
 
 
