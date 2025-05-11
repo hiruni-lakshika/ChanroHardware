@@ -29,8 +29,8 @@ public class SupplierServiceIMPL implements SupplierService {
     @Override
     public List<SupplierDTO> getAll(HashMap<String, String> params) {
         List<Supplier> suppliers = supplierRepository.findAll();
-        if (suppliers.isEmpty()) {
-            List<SupplierDTO> dtos = new ArrayList<>();
+        if (!suppliers.isEmpty()) {
+            List<SupplierDTO> dtos = objectMapper.supplierListToDtoList(suppliers);
             if (params.isEmpty()) {
                 return dtos;
             } else {

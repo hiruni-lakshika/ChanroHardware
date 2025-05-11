@@ -1,9 +1,7 @@
 package com.project.v1.controller;
 
-import com.project.v1.dto.EmployeeDTO;
 import com.project.v1.dto.StandardResponse;
 import com.project.v1.dto.SupplierDTO;
-import com.project.v1.service.EmployeeService;
 import com.project.v1.service.SupplierService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
