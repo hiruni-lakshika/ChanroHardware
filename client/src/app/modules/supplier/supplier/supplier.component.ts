@@ -22,6 +22,7 @@ import {Supplier} from "../../../core/entity/supplier";
 import {SupplierService} from "../../../core/service/supplier/supplier.service";
 import {RouterLink} from "@angular/router";
 import {Category} from "../../../core/entity/category";
+import {Supply} from "../../../core/entity/supply";
 
 @Component({
   selector: 'app-employee',
@@ -48,10 +49,18 @@ export class SupplierComponent implements OnInit{
   supplierstatuses: SupplierStatus[] = [];
   categories: Category[] = [];
 
+  innerdata: any;
+
+  isInnerDataUpdated:boolean = false;
+
   regexes:any;
 
   supplier!:Supplier;
   oldSupplier!: Supplier;
+
+  inndata!: any;
+  oldInndata!: any;
+
   currentOperation = '';
 
   protected hasUpdateAuthority = this.auths.hasAuthority("Supplier-UPDATE"); //need to be false
@@ -61,6 +70,7 @@ export class SupplierComponent implements OnInit{
 
   supplierSearchForm:FormGroup;
   supplierForm!:FormGroup;
+  innerForm!: FormGroup;
 
   dataSource!: MatTableDataSource<Supplier>;
   data!: Observable<any>
@@ -101,6 +111,10 @@ export class SupplierComponent implements OnInit{
       "supplierstatus": new FormControl(null,[Validators.required]),
       "description": new FormControl(null,[Validators.required]),
     },{updateOn:'change'});
+
+    this.innerForm = this.fb.group({
+      "category": new FormControl(null),
+    }, {updateOn: 'change'});
   }
 
   ngOnInit(): void {
@@ -182,6 +196,23 @@ export class SupplierComponent implements OnInit{
       );
 
     }
+    for (const controlName in this.innerForm.controls) {
+      const control = this.innerForm.controls[controlName];
+      control.valueChanges.subscribe(value => {
+          if (this.oldInndata != undefined && control.valid) {
+            // @ts-ignore
+            if (value === this.inndata[controlName]) {
+              control.markAsPristine();
+            } else {
+              control.markAsDirty();
+            }
+          } else {
+            control.markAsPristine();
+          }
+        }
+      );
+
+    }
     this.enableButtons(true,false,false);
   }
 
@@ -197,6 +228,8 @@ export class SupplierComponent implements OnInit{
     this.supplier = data;
     this.oldSupplier = this.supplier;
 
+    this.innerdata = this.supplier.supplies;
+
     this.supplierForm.setValue({
       name: this.supplier.name,
       address: this.supplier.address,
@@ -210,9 +243,97 @@ export class SupplierComponent implements OnInit{
       description: this.supplier.description,
     });
 
+    for (const controlName in this.innerForm.controls) {
+      this.innerForm.controls[controlName].clearValidators();
+      this.innerForm.controls[controlName].updateValueAndValidity();
+    }
+
     this.supplierForm.markAsPristine();
 
   }
+
+  id = 0;
+
+  addToTable() {
+
+    this.inndata = this.innerForm.getRawValue();
+
+    if (this.inndata.category == null) {
+      this.dialog.open(WarningDialogComponent, {
+        data: {heading: "Errors - Supply Add ", message: "Please Add Required Details"}
+      }).afterClosed().subscribe(res => {
+        if (!res) {
+          return;
+        }
+      });
+    } else {
+
+      if (this.inndata != null) {
+
+        let sup = new Supply(this.id, this.inndata.category);
+
+        let tem: Supply[] = [];
+        if (this.innerdata != null) this.innerdata.forEach((i:any) => tem.push(i));
+
+        this.innerdata = [];
+        tem.forEach((t) => this.innerdata.push(t));
+
+        // Clear the original array
+        this.innerdata = [];
+
+        // Add the existing records back to the original array
+        tem.forEach((t) => this.innerdata.push(t));
+
+        // Check if the new record already exists in the array
+        let exists = this.innerdata.some((record:any) => record.category?.id === sup.category?.id);
+
+        if (!exists) {
+          // If it does not exist, add the new record
+          this.innerdata.push(sup);
+        } else {
+          // If it exists, you can handle it as needed, e.g., show a message
+          this.dialog.open(WarningDialogComponent, {
+            data: {heading: "Errors - Supply Add ", message: "Duplicate record.<br>This record already exists in the table."}
+          }).afterClosed().subscribe(res => {
+            if (!res) {
+              return;
+            }
+          });
+        }
+
+        this.id++;
+        this.innerForm.reset();
+        this.isInnerDataUpdated = true;
+
+        for (const controlName in this.innerForm.controls) {
+          this.innerForm.controls[controlName].clearValidators();
+          this.innerForm.controls[controlName].updateValueAndValidity();
+        }
+      }
+    }
+
+  }
+
+  deleteRow(x: any) {
+
+    let datasources = this.innerdata;
+
+    this.dialog.open(ConfirmDialogComponent, {data: "Delete Supply"})
+      .afterClosed().subscribe(res => {
+      if (res) {
+
+        const index = datasources.findIndex((item:any) => item.id === x.id);
+
+        if (index > -1) {
+          datasources.splice(index, 1);
+        }
+
+        this.innerdata = datasources;
+        this.isInnerDataUpdated = true;
+      }
+    });
+  }
+
 
   getUpdates():string {
     let updates: string = "";
