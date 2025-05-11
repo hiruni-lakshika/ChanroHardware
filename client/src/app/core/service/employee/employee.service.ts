@@ -13,7 +13,6 @@ export class EmployeeService {
 
   constructor(private http:HttpClient) { }
   getAll(query:string){
-    console.log(apiurl+query);
     return this.http.get<Employee[]>(apiurl+query)
   }
 

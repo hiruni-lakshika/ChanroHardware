@@ -343,6 +343,9 @@ export class SupplierComponent implements OnInit{
         updates = updates + "<br>" + controlName.charAt(0).toUpperCase() + controlName.slice(1)+" Changed";
       }
     }
+    if(this.isInnerDataUpdated){
+      updates = updates + "<br>" + "Category Changed";
+    }
     return updates;
   }
 
@@ -360,6 +363,9 @@ export class SupplierComponent implements OnInit{
         }
       }
     }
+    if(this.innerdata.length == 0) {
+      errors = errors + "<br>Invalid Category";
+    }
     return errors;
   }
 
@@ -375,6 +381,10 @@ export class SupplierComponent implements OnInit{
         }
       });
     }else{
+
+      // @ts-ignore
+      this.innerdata.forEach((i)=> delete i.id);
+
       const data:Supplier = {
         name: this.supplierForm.controls['name'].value,
         address: this.supplierForm.controls['address'].value,
@@ -384,6 +394,7 @@ export class SupplierComponent implements OnInit{
         tpcontact: this.supplierForm.controls['tpcontact'].value,
         doregistered: this.supplierForm.controls['doregistered'].value,
         description: this.supplierForm.controls['description'].value,
+        supplies: this.innerdata,
 
         supplierstatus: {id: parseInt(this.supplierForm.controls['supplierstatus'].value)},
         employee: {id: parseInt(this.supplierForm.controls['employee'].value)},
@@ -437,6 +448,9 @@ export class SupplierComponent implements OnInit{
             return;
           }else{
 
+            // @ts-ignore
+            this.innerdata.forEach((i)=> delete i.id);
+
             const data:Supplier = {
               id: supplier.id,
               name: this.supplierForm.controls['name'].value,
@@ -447,6 +461,7 @@ export class SupplierComponent implements OnInit{
               tpcontact: this.supplierForm.controls['tpcontact'].value,
               doregistered: this.supplierForm.controls['doregistered'].value,
               description: this.supplierForm.controls['description'].value,
+              supplies: this.innerdata,
 
               supplierstatus: {id: parseInt(this.supplierForm.controls['supplierstatus'].value)},
               employee: {id: parseInt(this.supplierForm.controls['employee'].value)},

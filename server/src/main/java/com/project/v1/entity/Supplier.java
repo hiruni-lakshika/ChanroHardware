@@ -5,6 +5,7 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 
 import java.time.LocalDate;
 import java.util.LinkedHashSet;
@@ -61,7 +62,7 @@ public class Supplier {
     @JoinColumn(name = "employee_id", nullable = false)
     private Employee employee;
 
-    @OneToMany(mappedBy = "supplierIdsupplier")
+    @OneToMany(mappedBy = "supplierIdsupplier", cascade = CascadeType.ALL,orphanRemoval = true)
     private Set<Supply> supplies = new LinkedHashSet<>();
 
 }

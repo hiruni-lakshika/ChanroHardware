@@ -3,6 +3,7 @@ package com.project.v1.service.IMPL;
 import com.project.v1.dto.SupplierDTO;
 import com.project.v1.entity.Employee;
 import com.project.v1.entity.Supplier;
+import com.project.v1.entity.Supply;
 import com.project.v1.exception.ResourceAlreadyExistException;
 import com.project.v1.exception.ResourceNotFoundException;
 import com.project.v1.repository.SupplierRepository;
@@ -65,6 +66,11 @@ public class SupplierServiceIMPL implements SupplierService {
         }
 
         Supplier supplier = objectMapper.supplierDtoToSupplier(supplierDTO);
+
+        for(Supply i : supplier.getSupplies()){
+            i.setSupplierIdsupplier(supplier);
+        }
+
         supplierRepository.save(supplier);
         return supplierDTO;
     }
@@ -82,8 +88,15 @@ public class SupplierServiceIMPL implements SupplierService {
             throw new ResourceAlreadyExistException("Telephone Number Already Exists");
         }
 
-        Supplier supplier = objectMapper.supplierDtoToSupplier(supplierDTO);
-        supplierRepository.save(supplier);
+        try {
+            Supplier supplier = objectMapper.supplierDtoToSupplier(supplierDTO);
+            supplier.getSupplies().forEach(sup -> sup.setSupplierIdsupplier(supplier));
+            supplierRepository.save(supplier);
+
+        } catch (Exception e) {
+            System.out.println(e);
+        }
+
         return supplierDTO;
     }
 
