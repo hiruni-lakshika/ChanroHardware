@@ -46,4 +46,6 @@ public interface ObjectMapper {
     List<SupplierDTO> supplierListToDtoList(List<Supplier> suppliers);
 
     List<CategoryDTO> categoryListToDtoList(List<Category> categories);
+
+    List<PurchaseOrderDTO> poListToDtoList(List<Purchaseorder> purchaseOrders);
 }
