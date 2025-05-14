@@ -12,8 +12,8 @@ import java.util.Set;
 @Getter
 @Setter
 @Entity
-@Table(name = "category")
-public class Category {
+@Table(name = "postatus")
+public class Postatus {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", nullable = false)
@@ -24,10 +24,7 @@ public class Category {
     private String name;
 
     @JsonIgnore
-    @OneToMany(mappedBy = "category")
-    private Set<Supply> supplies = new LinkedHashSet<>();
-
-    @OneToMany(mappedBy = "category")
-    private Set<Subcategory> subcategories = new LinkedHashSet<>();
+    @OneToMany(mappedBy = "postatus")
+    private Set<Purchaseorder> purchaseorders = new LinkedHashSet<>();
 
 }

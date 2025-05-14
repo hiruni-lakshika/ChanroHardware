@@ -2,6 +2,7 @@ package com.project.v1.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.Setter;
@@ -12,8 +13,8 @@ import java.util.Set;
 @Getter
 @Setter
 @Entity
-@Table(name = "category")
-public class Category {
+@Table(name = "subcategory")
+public class Subcategory {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", nullable = false)
@@ -23,11 +24,13 @@ public class Category {
     @Column(name = "name", length = 45)
     private String name;
 
-    @JsonIgnore
-    @OneToMany(mappedBy = "category")
-    private Set<Supply> supplies = new LinkedHashSet<>();
+    @NotNull
+    @ManyToOne(fetch = FetchType.EAGER, optional = false)
+    @JoinColumn(name = "category_id", nullable = false)
+    private Category category;
 
-    @OneToMany(mappedBy = "category")
-    private Set<Subcategory> subcategories = new LinkedHashSet<>();
+    @JsonIgnore
+    @OneToMany(mappedBy = "subcategory")
+    private Set<Item> items = new LinkedHashSet<>();
 
 }
