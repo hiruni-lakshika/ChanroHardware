@@ -50,7 +50,7 @@ export class PurchaseorderComponent implements OnInit{
   items:Item[] = [];
   suppliers:Supplier[] = [];
   purchaseorders:Purchaseorder[] = [];
-  innerdata: Array<POItem> | undefined = [];
+  innerdata: POItem[] = [];
 
   purchaseOrder!:Purchaseorder;
   oldPurchaseOrder!:Purchaseorder;
@@ -226,6 +226,7 @@ export class PurchaseorderComponent implements OnInit{
     this.purchaseOrder = po;
     this.oldPurchaseOrder = this.purchaseOrder;
 
+    // @ts-ignore
     this.innerdata = this.purchaseOrder.poitems;
 
     this.purchaseorderForm.setValue({
@@ -444,8 +445,75 @@ export class PurchaseorderComponent implements OnInit{
   }
 
 
-  update(purchaseOrder: Purchaseorder) {
+  update(dat: Purchaseorder) {
+    let errors = this.getErrors();
 
+    if(errors != ""){
+      this.dialog.open(WarningDialogComponent,{
+        data:{heading:"Errors - Purchase Order Update ",message: "You Have Following Errors <br> " + errors}
+      }).afterClosed().subscribe(res => {
+        if(!res){
+          return;
+        }
+      });
+
+    }else{
+
+      let updates:string = this.getUpdates();
+
+      if(updates != ""){
+        this.dialog.open(WarningDialogComponent,{
+          data:{heading:"Updates - Purchase Order Update ",message: "You Have Following Updates <br> " + updates}
+        }).afterClosed().subscribe(res => {
+          if(!res){
+            return;
+          }else{
+
+            // @ts-ignore
+            this.innerdata.forEach((i)=> delete i.id);
+
+            const data:Purchaseorder = {
+              id: dat.id,
+              number: this.purchaseorderForm.controls['number'].value,
+              doexpected: this.purchaseorderForm.controls['doexpected'].value,
+              date: this.purchaseorderForm.controls['date'].value,
+              expectedtotal: this.purchaseorderForm.controls['expectedtotal'].value,
+              description: this.purchaseorderForm.controls['description'].value,
+              poitems: this.innerdata,
+
+              employee: {id: parseInt(this.purchaseorderForm.controls['employee'].value)},
+              postatus: {id: parseInt(this.purchaseorderForm.controls['postatus'].value)},
+              supplierIdsupplier: {id: parseInt(this.purchaseorderForm.controls['supplierIdsupplier'].value)},
+            }
+
+            this.dialog.open(ConfirmDialogComponent,{data:"PO Update "})
+              .afterClosed().subscribe(res => {
+              if(res) {
+                this.pos.update(data).subscribe({
+                  next:() => {
+                    this.tst.handleResult('success',"PO Updated Successfully");
+                    this.loadTable("");
+                    this.clearForm();
+                  },
+                  error:(err:any) => {
+                    this.tst.handleResult('failed',err.error.data.message);
+                    //console.log(err);
+                  }
+                });
+              }
+            })
+
+          }
+        });
+
+      }else{
+        this.dialog.open(WarningDialogComponent,{
+          data:{heading:"Updates - Supplier Update ",message: "No Fields Updated "}
+        }).afterClosed().subscribe(res =>{
+          if(res){return;}
+        })
+      }
+    }
   }
 
   delete(purchaseOrder: Purchaseorder) {
@@ -453,7 +521,15 @@ export class PurchaseorderComponent implements OnInit{
   }
 
   clearForm() {
+    this.purchaseorderForm.reset();
+    this.purchaseorderForm.controls['employee'].setValue(null);
+    this.purchaseorderForm.controls['supplierIdsupplier'].setValue(null);
+    this.purchaseorderForm.controls['postatus'].setValue(null);
 
+    this.innerdata = [];
+    this.isInnerDataUpdated = false;
+
+    this.enableButtons(true,false,false);
   }
 
   handleSearch(){
