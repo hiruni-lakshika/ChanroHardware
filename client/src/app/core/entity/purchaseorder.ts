@@ -13,5 +13,5 @@ export interface Purchaseorder {
   employee? : Employee;
   postatus? : POStatus;
   supplierIdsupplier? : Supplier;
-  poitems:Array<POItem>;
+  poitems?:Array<POItem>;
 }

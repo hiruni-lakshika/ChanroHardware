@@ -27,6 +27,7 @@ public class Category {
     @OneToMany(mappedBy = "category")
     private Set<Supply> supplies = new LinkedHashSet<>();
 
+    @JsonIgnore
     @OneToMany(mappedBy = "category")
     private Set<Subcategory> subcategories = new LinkedHashSet<>();
 

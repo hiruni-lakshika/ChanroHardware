@@ -48,4 +48,8 @@ public interface ObjectMapper {
     List<CategoryDTO> categoryListToDtoList(List<Category> categories);
 
     List<PurchaseOrderDTO> poListToDtoList(List<Purchaseorder> purchaseOrders);
+
+    List<POStatusDTO> poStatusListToDtoList(List<Postatus> list);
+
+    List<ItemDTO> itemsListToDtoList(List<Item> items);
 }

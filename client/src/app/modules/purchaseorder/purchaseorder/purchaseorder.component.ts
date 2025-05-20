@@ -4,7 +4,7 @@ import {MatGridList, MatGridTile} from "@angular/material/grid-list";
 import {MatPaginator} from "@angular/material/paginator";
 import {PageErrorComponent} from "../../../pages/page-error/page-error.component";
 import {PageLoadingComponent} from "../../../pages/page-loading/page-loading.component";
-import {FormBuilder, FormGroup, ReactiveFormsModule, Validators} from "@angular/forms";
+import {FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators} from "@angular/forms";
 import {POStatus} from "../../../core/entity/postatus";
 import {Employee} from "../../../core/entity/employee";
 import {Purchaseorder} from "../../../core/entity/purchaseorder";
@@ -12,6 +12,8 @@ import {MatTableDataSource} from "@angular/material/table";
 import {Observable} from "rxjs";
 import {AuthorizationService} from "../../../core/service/auth/authorization.service";
 import {PurchaseorderService} from "../../../core/service/purchaseorder/purchaseorder.service";
+import {POItem} from "../../../core/entity/poitem";
+import {Item} from "../../../core/entity/item";
 import {Supplier} from "../../../core/entity/supplier";
 
 @Component({
@@ -35,15 +37,24 @@ export class PurchaseorderComponent implements OnInit{
 
   employees:Employee[] = [];
   postatuses:POStatus[] = [];
+  items:Item[] = [];
+  suppliers:Supplier[] = [];
   purchaseorders:Purchaseorder[] = [];
+  innerdata: Array<POItem> | undefined = [];
 
-  purchaceOrder!:Purchaseorder;
-  oldPurchaceOrder!:Purchaseorder;
+  purchaseOrder!:Purchaseorder;
+  oldPurchaseOrder!:Purchaseorder;
+
+  inndata!: any;
+  oldInndata!: any;
+
+  isInnerDataUpdated:boolean = false;
+
+  regexes: any;
 
   purchaseorderSearchForm!:FormGroup;
-
-  // supplierForm!:FormGroup;
-  // innerForm!: FormGroup;
+  purchaseorderForm!:FormGroup;
+  innerForm!: FormGroup;
 
   protected hasUpdateAuthority = this.auths.hasAuthority("PurchaseOrder-UPDATE"); //need to be false
   protected hasDeleteAuthority = this.auths.hasAuthority("PurchaseOrder-DELETE"); //need to be false
@@ -69,6 +80,23 @@ export class PurchaseorderComponent implements OnInit{
       ssemployee:['default',Validators.required],
       sspostatus:['default',Validators.required],
     });
+
+    this.purchaseorderForm = this.fb.group({
+      "number": new FormControl('',[Validators.required]),
+      "doexpected": new FormControl('',[Validators.required]),
+      "expectedtotal": new FormControl('',[Validators.required]),
+      "description": new FormControl('',[Validators.required]),
+      "date": new FormControl('',[Validators.required]),
+      "supplierIdsupplier": new FormControl(null,[Validators.required]),
+      "postatus": new FormControl(null,[Validators.required]),
+      "employee": new FormControl(null,[Validators.required]),
+    },{updateOn:'change'});
+
+    this.innerForm = this.fb.group({
+      "quantity": new FormControl(''),
+      "expectedlinetotal": new FormControl(''),
+      "item": new FormControl(null),
+    }, {updateOn: 'change'});
   }
 
   ngOnInit(): void {
@@ -93,10 +121,43 @@ export class PurchaseorderComponent implements OnInit{
     })
   }
 
+  enableButtons(add:boolean, upd:boolean, del:boolean){
+    this.enaadd=add;
+    this.enaupd=upd;
+    this.enadel=del;
+  }
+
 
   fillForm(po:Purchaseorder){
+    this.enableButtons(false,true,true);
+
+    this.purchaseOrder = po;
+    this.oldPurchaseOrder = this.purchaseOrder;
+
+    this.innerdata = this.purchaseOrder.poitems;
+
+    this.purchaseorderForm.setValue({
+      number: this.purchaseOrder.number,
+      doexpected: this.purchaseOrder.doexpected,
+      expectedtotal: this.purchaseOrder.expectedtotal,
+      date: this.purchaseOrder.date,
+      employee: this.purchaseOrder.employee?.id,
+      postatus: this.purchaseOrder.postatus?.id,
+      supplierIdsupplier: this.purchaseOrder.supplierIdsupplier?.id,
+      description: this.purchaseOrder.description,
+    });
+
+    for (const controlName in this.innerForm.controls) {
+      this.innerForm.controls[controlName].clearValidators();
+      this.innerForm.controls[controlName].updateValueAndValidity();
+    }
+
+    this.purchaseorderForm.markAsPristine();
 
   }
+
+  addToTable(){}
+  deleteRow(innData:any){}
 
   handleSearch(){
 
@@ -104,4 +165,19 @@ export class PurchaseorderComponent implements OnInit{
   clearSearch(){}
 
 
+  add() {
+
+  }
+
+  update(purchaseOrder: any) {
+
+  }
+
+  delete(purchaseOrder: Purchaseorder) {
+
+  }
+
+  clearForm() {
+
+  }
 }

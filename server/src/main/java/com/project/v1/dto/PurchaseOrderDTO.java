@@ -1,13 +1,11 @@
 package com.project.v1.dto;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import com.project.v1.entity.Employee;
 import com.project.v1.entity.Poitem;
 import com.project.v1.entity.Postatus;
 import com.project.v1.entity.Supplier;
-import jakarta.persistence.*;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
+
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -15,7 +13,6 @@ import lombok.Setter;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.util.LinkedHashSet;
 import java.util.Set;
 
 @Getter
@@ -32,5 +29,5 @@ public class PurchaseOrderDTO {
     private Employee employee;
     private Postatus postatus;
     private Supplier supplierIdsupplier;
-    private Set<Poitem> poitems = new LinkedHashSet<>();
+    private Set<Poitem> poitems;
 }

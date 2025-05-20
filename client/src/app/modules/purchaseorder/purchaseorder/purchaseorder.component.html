@@ -64,147 +64,194 @@
 <mat-grid-list [cols]="12" rowHeight="4rem">
 
   <mat-grid-tile [colspan]="4" [rowspan]="10">
-<!--    <div class="w-full h-full bg-white mt-4 ml-2 rounded-md shadow-md border-2 border-[[#1e4263]] overflow-auto">-->
+    <div class="w-full h-full bg-white mt-4 ml-2 rounded-md shadow-md border-2 border-[[#1e4263]] overflow-auto">
 
-<!--      <div class="w-full h-[2.5rem] bg-[#1e4263] flex items-center rounded-tl-md rounded-tr-md">-->
-<!--        <span class="ml-5 text-white text-lg ">Data Form</span>-->
-<!--      </div>-->
+      <div class="w-full h-[2.5rem] bg-[#1e4263] flex items-center rounded-tl-md rounded-tr-md">
+        <span class="ml-5 text-white text-lg ">Data Form</span>
+      </div>
 
-<!--      <form class="mt-5" [formGroup]="purchaseorderForm">-->
+      <form class="mt-5" [formGroup]="purchaseorderForm">
 
-<!--        <div class="h-28 mb-8 flex flex-row items-center justify-center">-->
-<!--          <img class="h-32 w-32 rounded-full border-2" src="{{imageempurl ? imageempurl : '../assets/tabledefault.png'}}">-->
-<!--          <div class="flex flex-col mt-2">-->
-<!--            <input  id="userImage" hidden="hidden" (change)="selectImage($event)" select type="file" formControlName="photo">-->
-<!--            <label for="userImage" class="btn ml-10 mb-2 rounded-md text-center bg-gray-950 text-white w-28 hover:bg-gray-900">Select</label>-->
-<!--            <label class="btn ml-10 mb-2 rounded-md text-center bg-gray-950 text-white hover:bg-gray-900" (click)="clearImage()">Clear</label>-->
-<!--          </div>-->
-<!--        </div>-->
+        <div class="relative w-full px-2 mb-3">
+          <input
+            type="text"
+            placeholder="Number"
+            class="peer input input-bordered w-full focus:outline-none"
+            formControlName="number"
+          />
+          <label class="floating-label">Number</label>
 
-<!--        <div class="relative w-full px-2 mb-3">-->
-<!--          <input-->
-<!--            type="text"-->
-<!--            placeholder="First Name"-->
-<!--            class="peer input input-bordered w-full focus:outline-none"-->
-<!--            formControlName="firstname"-->
-<!--          />-->
-<!--          <label class="floating-label">First Name</label>-->
+        </div>
 
-<!--        </div>-->
+        <div class="relative w-full px-2 mb-3">
+          <input
+            type="text"
+            placeholder="Expected Date"
+            class="peer input input-bordered w-full focus:outline-none"
+            formControlName="doexpected"
+            onfocus="(this.type='date')"
+          />
+          <label class="floating-label">Expected Date</label>
+        </div>
 
-<!--        <div class="relative w-full px-2 mb-3">-->
-<!--          <input-->
-<!--            type="text"-->
-<!--            placeholder="Last Name"-->
-<!--            class=" peer input input-bordered w-full focus:outline-none"-->
-<!--            formControlName="lastname"-->
-<!--          />-->
-<!--          <label class="floating-label">Last Name</label>-->
+        <div class="relative w-full px-2 mb-3">
+          <input
+            type="text"
+            placeholder="Placed Date"
+            class="peer input input-bordered w-full focus:outline-none"
+            formControlName="date"
+            onfocus="(this.type='date')"
+          />
+          <label class="floating-label">Placed Date</label>
+        </div>
 
-<!--        </div>-->
+        <!--        InnterForm Start-->
+        <div>
 
-<!--        <div class="relative w-full px-2 mb-3">-->
-<!--          <input-->
-<!--            type="text"-->
-<!--            placeholder="NIC"-->
-<!--            class=" peer input input-bordered w-full focus:outline-none"-->
-<!--            formControlName="nic"-->
-<!--          />-->
-<!--          <label class="floating-label">NIC</label>-->
-<!--        </div>-->
+          <form [formGroup]="innerForm">
 
-<!--        <div class="relative w-full px-2 mb-3">-->
-<!--          <input-->
-<!--            type="text"-->
-<!--            placeholder="Date Of Birth"-->
-<!--            class="peer input input-bordered w-full focus:outline-none"-->
-<!--            formControlName="dob"-->
-<!--            onfocus="(this.type='date')"-->
-<!--          />-->
-<!--          <label class="floating-label">Date Of Birth</label>-->
-<!--        </div>-->
+            <div class="mb-3 px-2">
+              <select
+                class="select select-bordered w-full bg-white focus:outline-none"
+                formControlName="item"
+              >
+                <option disabled [ngValue]="null">Item</option>
 
-<!--        <div class="relative w-full px-2 mb-3">-->
-<!--          <input-->
-<!--            type="text"-->
-<!--            placeholder="Do Assigned"-->
-<!--            class=" peer input input-bordered w-full focus:outline-none"-->
-<!--            formControlName="doassigned"-->
-<!--            onfocus="(this.type='date')"-->
-<!--          />-->
-<!--          <label class="floating-label">Do Assigned</label>-->
-<!--        </div>-->
+                @for (item of items; track items) {
+                  <option [ngValue]="item">{{ item.name }}</option>
+                }
+              </select>
+            </div>
 
-<!--        <div class="relative w-full px-2 mb-3">-->
-<!--          <input-->
-<!--            type="text"-->
-<!--            placeholder="Email"-->
-<!--            class=" peer input input-bordered w-full focus:outline-none"-->
-<!--            formControlName="email"-->
-<!--          />-->
-<!--          <label class="floating-label">Email</label>-->
-<!--        </div>-->
+            <div class="flex px-2 mb-3">
+              <div class="relative mr-2">
+                <input
+                  type="number"
+                  placeholder="Quentity"
+                  class="peer input input-bordered w-full focus:outline-none"
+                  formControlName="quantity"
+                />
+                <label class="floating-label">Quentity</label>
+              </div>
 
-<!--        <div class="flex flex-row items-center mb-3">-->
-<!--          <div class="w-full px-2 relative">-->
-<!--            <input-->
-<!--              type="text"-->
-<!--              placeholder="Mobile"-->
-<!--              class="peer input input-bordered w-full  focus:outline-none"-->
-<!--              formControlName="mobile"-->
-<!--            />-->
-<!--            <label class="floating-label">Mobile</label>-->
-<!--          </div>-->
+              <div>
+                <button class="btn bg-gray-950 text-gray-300 hover:bg-gray-900" (click)="addToTable()">Add</button>
+              </div>
+            </div>
 
-<!--          <div class="w-full px-2 relative">-->
-<!--            <input-->
-<!--              type="text"-->
-<!--              placeholder="Land"-->
-<!--              class="peer input input-bordered w-full focus:outline-none"-->
-<!--              formControlName="land"-->
-<!--            />-->
-<!--            <label class="floating-label">Land</label>-->
-<!--          </div>-->
+            <div>
+              <table class="text-left p-4 table mb-4">
+                <thead>
+                <tr class="text-black bold">
+                  <th>Item</th>
+                  <th>Quentity</th>
+                  <th>LineTotal</th>
+                  <th>Actions</th>
+                </tr>
+                </thead>
+                <tbody>
+                  @for (indata of innerdata; track innerdata) {
+                    <tr>
+                      <td>{{ indata.item.name }}</td>
+                      <td>{{ indata.quantity }}</td>
+                      <td>{{ indata.expectedlinetotal }}</td>
+                      <td>
+                        <button (click)="deleteRow(indata)"
+                                class="{{hasWriteAuthority ? 'text-error' : 'text-gray-300'}} hover:cursor-pointer"
+                                [disabled]="!hasWriteAuthority">
+                          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="{1.5}"
+                               stroke="currentColor" className="size-6" class="w-6 h-6 ">
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                                  d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0"/>
+                          </svg>
 
-<!--        </div>-->
+                        </button>
+                      </td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
 
-<!--        <div class="flex flex-row items-center mb-3 px-2">-->
-<!--          <div class="relative mr-2 w-full">-->
-<!--            <input-->
-<!--              type="text"-->
-<!--              placeholder="Number"-->
-<!--              class="peer input input-bordered w-full focus:outline-none"-->
-<!--              formControlName="number"-->
-<!--            />-->
-<!--            <label class="floating-label">Number</label>-->
-<!--          </div>-->
+          </form>
+        </div>
+        <!--        InnterForm End-->
 
-<!--          <button class="btn bg-gray-950 text-white hover:bg-gray-900" (click)="generateRandomNumber()">Generate Number</button>-->
-<!--        </div>-->
+        <div class="relative w-full px-2 mb-3">
+          <input
+            type="text"
+            placeholder="GrandTotal"
+            class="peer input input-bordered w-full focus:outline-none"
+            formControlName="expectedtotal"
+          />
+          <label class="floating-label">GrandTotal</label>
+
+        </div>
+
+        <div class="relative mb-3 px-2">
+          <select
+            class="peer select select-bordered w-full bg-white focus:outline-none"
+            formControlName="supplierIdsupplier"
+          >
+            <option disabled [ngValue]="null">Supplier</option>
+
+            @for (supplier of suppliers; track suppliers) {
+              <option [ngValue]="supplier.id">{{ supplier.name }}</option>
+            }
+          </select>
+          <label class="floating-labels-select">Supplier</label>
+        </div>
+
+        <div class="relative mb-3 px-2">
+          <select
+            class="peer select select-bordered w-full bg-white focus:outline-none"
+            formControlName="employee"
+          >
+            <option disabled [ngValue]="null">Employee</option>
+
+            @for (employee of employees; track employees) {
+              <option [ngValue]="employee.id">{{ employee.lastname }}</option>
+            }
+          </select>
+          <label class="floating-labels-select">Employee</label>
+        </div>
+
+        <div class="relative mb-3 px-2">
+          <select
+            class="peer select select-bordered w-full bg-white focus:outline-none"
+            formControlName="postatus"
+          >
+            <option disabled [ngValue]="null">PO Status</option>
+
+            @for (postatus of postatuses; track postatuses) {
+              <option [ngValue]="postatus.id">{{ postatus.name }}</option>
+            }
+          </select>
+          <label class="floating-labels-select">PO Status</label>
+        </div>
+
+        <div class="relative w-full mb-3 px-2">
+            <textarea
+              class="peer textarea textarea-bordered w-full h-36 focus:outline-none"
+              placeholder="Description"
+              formControlName="description"
+            ></textarea>
+          <label class="floating-label">Description</label>
+        </div>
 
 
-<!--        <div class="relative w-full mb-3 px-2">-->
-<!--            <textarea-->
-<!--              class="peer textarea textarea-bordered w-full h-36 focus:outline-none"-->
-<!--              placeholder="Description"-->
-<!--              formControlName="description"-->
-<!--            ></textarea>-->
-<!--          <label class="floating-label">Description</label>-->
-<!--        </div>-->
+        <div class="flex flex-row mt-3 max-w-[99%] px-2 pb-5">
+          <button class="btn text-white bg-gray-950 mr-1 w-1/4 hover:bg-gray-900" [disabled]="!enaadd || !hasWriteAuthority" (click)="add()">Add</button>
+          <button class="btn text-white bg-gray-950 mr-1 w-1/4 hover:bg-gray-900" [disabled]="!enaupd || !hasUpdateAuthority" (click)="update(purchaseOrder)">Update</button>
+          <button class="btn text-white bg-gray-950 mr-1 w-1/4 hover:bg-gray-900" (click)="delete(purchaseOrder)"
+                  [disabled]="!hasDeleteAuthority || !enadel" >Delete</button>
+          <button class="btn text-white bg-gray-950 w-1/4 hover:bg-gray-900" (click)="clearForm()">Clear</button>
+        </div>
+
+      </form>
 
 
-<!--        <div class="flex flex-row mt-3 max-w-[99%] px-2 pb-5">-->
-<!--          <button class="btn text-white bg-gray-950 mr-1 w-1/4 hover:bg-gray-900" [disabled]="!enaadd || !hasWriteAuthority" (click)="addPurchaseorder()">Add</button>-->
-<!--          <button class="btn text-white bg-gray-950 mr-1 w-1/4 hover:bg-gray-900" [disabled]="!enaupd || !hasUpdateAuthority" (click)="updatePurchaseorder(purchaseorder)">Update</button>-->
-<!--          <button class="btn text-white bg-gray-950 mr-1 w-1/4 hover:bg-gray-900" (click)="deletePurchaseorder(purchaseorder)"-->
-<!--                  [disabled]="!hasDeleteAuthority || !enadel" >Delete</button>-->
-<!--          <button class="btn text-white bg-gray-950 w-1/4 hover:bg-gray-900" (click)="clearForm()">Clear</button>-->
-<!--        </div>-->
-
-<!--      </form>-->
-
-
-<!--    </div>-->
+    </div>
   </mat-grid-tile>
 
   <mat-grid-tile [colspan]="8" [rowspan]="10">
