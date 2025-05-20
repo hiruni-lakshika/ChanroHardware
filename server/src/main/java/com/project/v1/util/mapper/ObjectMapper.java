@@ -52,4 +52,6 @@ public interface ObjectMapper {
     List<POStatusDTO> poStatusListToDtoList(List<Postatus> list);
 
     List<ItemDTO> itemsListToDtoList(List<Item> items);
+
+    Purchaseorder purchaseOrderDtoToPo(PurchaseOrderDTO purchaseOrderDTO);
 }

@@ -19,6 +19,12 @@ import {ItemService} from "../../../core/service/purchaseorder/item.service";
 import {EmployeeService} from "../../../core/service/employee/employee.service";
 import {SupplierService} from "../../../core/service/supplier/supplier.service";
 import {PostatusService} from "../../../core/service/purchaseorder/postatus.service";
+import {RegexService} from "../../../core/service/regexes/regex.service";
+import {WarningDialogComponent} from "../../../shared/dialog/warning-dialog/warning-dialog.component";
+import {Supply} from "../../../core/entity/supply";
+import {ConfirmDialogComponent} from "../../../shared/dialog/confirm-dialog/confirm-dialog.component";
+import {MatDialog} from "@angular/material/dialog";
+import {ToastService} from "../../../core/util/toast.service";
 
 @Component({
   selector: 'app-purchaseorder',
@@ -82,6 +88,9 @@ export class PurchaseorderComponent implements OnInit{
     private es:EmployeeService,
     private ss:SupplierService,
     private poss: PostatusService,
+    private rs:RegexService,
+    private dialog:MatDialog,
+    private tst:ToastService,
   ) {
     this.purchaseorderSearchForm = this.fb.group({
       ssnumber:[null],
@@ -131,6 +140,65 @@ export class PurchaseorderComponent implements OnInit{
     this.ss.getAll("").subscribe({
       next:data => this.suppliers = data,
     });
+
+    this.rs.getRegexes('po').subscribe({
+      next:data => {
+        this.regexes = data;
+        this.createForm();
+      },
+      error: () => this.regexes = [] || undefined
+    });
+  }
+
+  createForm(){
+    this.purchaseorderForm.controls['number'].setValidators([Validators.required]);
+    this.purchaseorderForm.controls['doexpected'].setValidators([Validators.required]);
+    this.purchaseorderForm.controls['expectedtotal'].setValidators([Validators.required]);
+    this.purchaseorderForm.controls['description'].setValidators([Validators.required]);
+    this.purchaseorderForm.controls['date'].setValidators([Validators.required]);
+    this.purchaseorderForm.controls['supplierIdsupplier'].setValidators([Validators.required]);
+    this.purchaseorderForm.controls['postatus'].setValidators([Validators.required]);
+    this.purchaseorderForm.controls['employee'].setValidators([Validators.required]);
+    this.purchaseorderForm.controls['employee'].setValidators([Validators.required]);
+
+    Object.values(this.purchaseorderForm.controls).forEach( control => { control.markAsTouched(); } );
+
+    for (const controlName in this.purchaseorderForm.controls) {
+      const control = this.purchaseorderForm.controls[controlName];
+      control.valueChanges.subscribe(value => {
+
+          if (this.oldPurchaseOrder != undefined && control.valid) {
+            // @ts-ignore
+            if (value === this.purchaseOrder[controlName]) {
+              control.markAsPristine();
+            } else {
+              control.markAsDirty();
+            }
+          } else {
+            control.markAsPristine();
+          }
+        }
+      );
+
+    }
+    for (const controlName in this.innerForm.controls) {
+      const control = this.innerForm.controls[controlName];
+      control.valueChanges.subscribe(value => {
+          if (this.oldInndata != undefined && control.valid) {
+            // @ts-ignore
+            if (value === this.inndata[controlName]) {
+              control.markAsPristine();
+            } else {
+              control.markAsDirty();
+            }
+          } else {
+            control.markAsPristine();
+          }
+        }
+      );
+
+    }
+    this.enableButtons(true,false,false);
   }
 
   loadTable(query:string){
@@ -180,20 +248,203 @@ export class PurchaseorderComponent implements OnInit{
 
   }
 
-  addToTable(){}
-  deleteRow(innData:any){}
+  id = 0;
+  expectedlinetotal = 0;
+  grandtotal = 0;
 
-  handleSearch(){
+  addToTable() {
+
+    this.inndata = this.innerForm.getRawValue();
+
+    if (this.inndata.item == null || this.inndata.quantity == "") {
+      this.dialog.open(WarningDialogComponent, {
+        data: {heading: "Errors - PO Item Add ", message: "Please Add Required Details"}
+      }).afterClosed().subscribe(res => {
+        if (!res) {
+          return;
+        }
+      });
+    } else {
+
+      if (this.inndata != null) {
+
+        this.calculateLineTotal(this.inndata.item.cost, this.inndata.quantity)
+
+        let poi = new POItem(this.id, this.inndata.item, this.inndata.quantity, this.expectedlinetotal);
+
+        let tem: POItem[] = [];
+        if (this.innerdata != null) this.innerdata.forEach((i) => tem.push(i));
+
+        this.innerdata = [];
+        // @ts-ignore
+        tem.forEach((t) => this.innerdata.push(t));
+
+        // Clear the original array
+        this.innerdata = [];
+
+        // Add the existing records back to the original array
+        // @ts-ignore
+        tem.forEach((t) => this.innerdata.push(t));
+
+        // Check if the new record already exists in the array
+        let exists = this.innerdata.some(record => record.item?.id === poi.item?.id);
+
+        if (!exists) {
+          // If it does not exist, add the new record
+          this.innerdata.push(poi);
+        } else {
+          // If it exists, you can handle it as needed, e.g., show a message
+          this.dialog.open(WarningDialogComponent, {
+            data: {heading: "Errors - PO Item Add ", message: "Duplicate record.<br>This record already exists in the table."}
+          }).afterClosed().subscribe(res => {
+            if (!res) {
+              return;
+            }
+          });
+        }
+
+        this.id++;
+
+        this.calculateGrandTotal();
+        this.innerForm.reset();
+        this.isInnerDataUpdated = true;
+
+        for (const controlName in this.innerForm.controls) {
+          this.innerForm.controls[controlName].clearValidators();
+          this.innerForm.controls[controlName].updateValueAndValidity();
+        }
+      }
+    }
 
   }
-  clearSearch(){}
+
+  calculateLineTotal(unitprice: number, qty: number) {
+    this.expectedlinetotal = qty * unitprice;
+  }
+
+  calculateGrandTotal() {
+    this.grandtotal = 0;
+
+    // @ts-ignore
+    this.innerdata.forEach((e) => {
+      this.grandtotal = this.grandtotal + e.expectedlinetotal;
+    });
+
+    this.purchaseorderForm.controls['expectedtotal'].setValue(this.grandtotal);
+  }
+
+  deleteRow(x: any) {
+
+    let datasources = this.innerdata;
+
+    this.dialog.open(ConfirmDialogComponent, {data: "Delete PO Item"})
+      .afterClosed().subscribe(res => {
+      if (res) {
+
+        // @ts-ignore
+        const index = datasources.findIndex(item => item.id === x.id);
+
+        if (index > -1) {
+          // @ts-ignore
+          datasources.splice(index, 1);
+        }
+
+        this.innerdata = datasources;
+        this.calculateGrandTotal();
+        this.isInnerDataUpdated = true;
+      }
+    });
+  }
+
+  getUpdates(): string {
+    let updates: string = "";
+    for (const controlName in this.purchaseorderForm.controls) {
+      const control = this.purchaseorderForm.controls[controlName];
+      if (control.dirty) {
+        updates = updates + "<br>" + controlName.charAt(0).toUpperCase() + controlName.slice(1) + " Changed";
+      }
+    }
+    if(this.isInnerDataUpdated){
+      updates = updates + "<br>" + "Item Quentity Changed";
+    }
+    return updates;
+  }
+
+  getErrors() {
+
+    let errors: string = "";
+
+    for (const controlName in this.purchaseorderForm.controls) {
+      const control = this.purchaseorderForm.controls[controlName];
+      if (control.errors) {
+        if (this.regexes[controlName] != undefined) {
+          errors = errors + "<br>" + this.regexes[controlName]['message'];
+        } else {
+          errors = errors + "<br>Invalid " + controlName;
+        }
+      }
+    }
+    // @ts-ignore
+    if(this.innerdata.length == 0) {
+      errors = errors + "<br>Invalid Item Quentity";
+    }
+    return errors;
+  }
 
 
   add() {
+    let errors = this.getErrors();
 
+    if (errors != "") {
+      this.dialog.open(WarningDialogComponent, {
+        data: {heading: "Errors - Purchase Order Add ", message: "You Have Following Errors " + errors}
+      }).afterClosed().subscribe(res => {
+        if (!res) {
+          return;
+        }
+      });
+    } else {
+
+      if (this.purchaseorderForm.valid) {
+
+        // @ts-ignore
+        this.innerdata.forEach((i)=> delete i.id);
+
+        const data:Purchaseorder = {
+          number: this.purchaseorderForm.controls['number'].value,
+          doexpected: this.purchaseorderForm.controls['doexpected'].value,
+          date: this.purchaseorderForm.controls['date'].value,
+          expectedtotal: this.purchaseorderForm.controls['expectedtotal'].value,
+          description: this.purchaseorderForm.controls['description'].value,
+          poitems: this.innerdata,
+
+          employee: {id: parseInt(this.purchaseorderForm.controls['employee'].value)},
+          postatus: {id: parseInt(this.purchaseorderForm.controls['postatus'].value)},
+          supplierIdsupplier: {id: parseInt(this.purchaseorderForm.controls['supplierIdsupplier'].value)},
+        }
+
+        this.dialog.open(ConfirmDialogComponent, {data: "Add Purchase Order"})
+          .afterClosed().subscribe(res => {
+          if (res) {
+            this.pos.save(data).subscribe({
+              next: () => {
+                this.tst.handleResult('success',"Purchase Order Saved Successfully");
+                this.loadTable("");
+                this.clearForm();
+              },
+              error: (err: any) => {
+                this.tst.handleResult('failed',err.error.data.message);
+              }
+            });
+          }
+        })
+      }
+
+    }
   }
 
-  update(purchaseOrder: any) {
+
+  update(purchaseOrder: Purchaseorder) {
 
   }
 
@@ -204,4 +455,10 @@ export class PurchaseorderComponent implements OnInit{
   clearForm() {
 
   }
+
+  handleSearch(){
+
+  }
+  clearSearch(){}
+
 }

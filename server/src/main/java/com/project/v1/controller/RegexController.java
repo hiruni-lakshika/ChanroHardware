@@ -1,6 +1,7 @@
 package com.project.v1.controller;
 
 import com.project.v1.dto.EmployeeDTO;
+import com.project.v1.dto.PurchaseOrderDTO;
 import com.project.v1.dto.SupplierDTO;
 import com.project.v1.dto.UserDTO;
 import com.project.v1.util.regex.RegexProvider;
@@ -29,5 +30,10 @@ public class RegexController {
     @GetMapping(path = "/supplier")
     public HashMap<String, HashMap<String,String>> supplier(){
         return RegexProvider.get(new SupplierDTO());
+    }
+
+    @GetMapping(path = "/po")
+    public HashMap<String, HashMap<String,String>> po(){
+        return RegexProvider.get(new PurchaseOrderDTO());
     }
 }

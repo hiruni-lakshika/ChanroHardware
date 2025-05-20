@@ -1,7 +1,9 @@
 package com.project.v1.service.IMPL;
 
 import com.project.v1.dto.PurchaseOrderDTO;
+import com.project.v1.entity.Poitem;
 import com.project.v1.entity.Purchaseorder;
+import com.project.v1.exception.ResourceAlreadyExistException;
 import com.project.v1.exception.ResourceNotFoundException;
 import com.project.v1.repository.PurchaseOrderRepository;
 import com.project.v1.service.PurchaseOrderService;
@@ -51,12 +53,41 @@ public class PurchaseOrderIMPL implements PurchaseOrderService {
 
     @Override
     public PurchaseOrderDTO save(PurchaseOrderDTO purchaseOrderDTO) {
-        return null;
+
+        if (purchaseOrderRepository.existsByNumber(purchaseOrderDTO.getNumber())) {
+            throw new ResourceNotFoundException("Number Already Exists");
+        }
+
+        Purchaseorder po = objectMapper.purchaseOrderDtoToPo(purchaseOrderDTO);
+
+        for(Poitem i : po.getPoitems()){
+            i.setPurchaseorder(po);
+        }
+
+        purchaseOrderRepository.save(po);
+        return purchaseOrderDTO;
     }
 
     @Override
     public PurchaseOrderDTO update(PurchaseOrderDTO purchaseOrderDTO) {
-        return null;
+
+        Purchaseorder porec = purchaseOrderRepository.findById(purchaseOrderDTO.getId()).orElseThrow(() -> new ResourceNotFoundException("Purchase Order Not Found"));
+
+        if (!porec.getNumber().equals(purchaseOrderDTO.getNumber()) && purchaseOrderRepository.existsByNumber(purchaseOrderDTO.getNumber())) {
+            throw new ResourceAlreadyExistException("Number Already Exists");
+        }
+
+
+        try {
+            Purchaseorder po = objectMapper.purchaseOrderDtoToPo(purchaseOrderDTO);
+            po.getPoitems().forEach(sup -> sup.setPurchaseorder(po));
+            purchaseOrderRepository.save(po);
+
+        } catch (Exception e) {
+            System.out.println(e);
+        }
+
+        return purchaseOrderDTO;
     }
 
     @Override
