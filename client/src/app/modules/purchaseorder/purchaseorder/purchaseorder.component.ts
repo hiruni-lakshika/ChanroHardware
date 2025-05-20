@@ -15,6 +15,10 @@ import {PurchaseorderService} from "../../../core/service/purchaseorder/purchase
 import {POItem} from "../../../core/entity/poitem";
 import {Item} from "../../../core/entity/item";
 import {Supplier} from "../../../core/entity/supplier";
+import {ItemService} from "../../../core/service/purchaseorder/item.service";
+import {EmployeeService} from "../../../core/service/employee/employee.service";
+import {SupplierService} from "../../../core/service/supplier/supplier.service";
+import {PostatusService} from "../../../core/service/purchaseorder/postatus.service";
 
 @Component({
   selector: 'app-purchaseorder',
@@ -74,6 +78,10 @@ export class PurchaseorderComponent implements OnInit{
     private auths:AuthorizationService,
     private pos:PurchaseorderService,
     private cdr:ChangeDetectorRef,
+    private is:ItemService,
+    private es:EmployeeService,
+    private ss:SupplierService,
+    private poss: PostatusService,
   ) {
     this.purchaseorderSearchForm = this.fb.group({
       ssnumber:[null],
@@ -107,6 +115,22 @@ export class PurchaseorderComponent implements OnInit{
 
   initialize(){
     this.loadTable("");
+
+    this.is.getAll().subscribe({
+      next:data => this.items = data,
+    });
+
+    this.poss.getAll().subscribe({
+      next:data => this.postatuses = data,
+    });
+
+    this.es.getAll("").subscribe({
+      next:data => this.employees = data,
+    });
+
+    this.ss.getAll("").subscribe({
+      next:data => this.suppliers = data,
+    });
   }
 
   loadTable(query:string){
