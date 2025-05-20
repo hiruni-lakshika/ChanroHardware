@@ -518,6 +518,21 @@ export class PurchaseorderComponent implements OnInit{
 
   delete(purchaseOrder: Purchaseorder) {
 
+    this.dialog.open(ConfirmDialogComponent,{data:"Delete PO "})
+      .afterClosed().subscribe((res:boolean) => {
+      if(res && purchaseOrder.id){
+        this.pos.delete(purchaseOrder.id).subscribe({
+          next: () => {
+            this.loadTable("");
+            this.tst.handleResult("success","PO Deleted Successfully");
+            this.clearForm();
+          },
+          error: (err:any) => {
+            this.tst.handleResult("failed",err.error.data.message);
+          }
+        });
+      }
+    })
   }
 
   clearForm() {
