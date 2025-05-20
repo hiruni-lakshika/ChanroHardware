@@ -54,8 +54,7 @@ public class Purchaseorder {
     @JoinColumn(name = "supplier_idsupplier", nullable = false)
     private Supplier supplierIdsupplier;
 
-    @JsonIgnore
-    @OneToMany(mappedBy = "purchaseorder")
+    @OneToMany(mappedBy = "purchaseorder", cascade = CascadeType.ALL,orphanRemoval = true)
     private Set<Poitem> poitems = new LinkedHashSet<>();
 
 }

@@ -8,6 +8,7 @@ import {EmployeeComponent} from "./modules/employee/employee/employee.component"
 import {UserComponent} from "./modules/user/user/user.component";
 import {PrivilegeComponent} from "./modules/privilege/privilege.component";
 import {SupplierComponent} from "./modules/supplier/supplier/supplier.component";
+import {PurchaseorderComponent} from "./modules/purchaseorder/purchaseorder/purchaseorder.component";
 
 export const routes: Routes = [
   {path:"login" ,component:LoginComponent ,title:"Login"},
@@ -25,6 +26,7 @@ export const routes: Routes = [
       {path:"privilege", component: PrivilegeComponent, title:"Privilege"},
 
       {path:"supplier", component: SupplierComponent, title:"Supplier"},
+      {path:"po", component: PurchaseorderComponent, title:"Purchase Order"},
 
 
     ]

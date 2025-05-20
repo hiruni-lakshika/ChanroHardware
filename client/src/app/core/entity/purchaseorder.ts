@@ -1,6 +1,7 @@
-import {SupplierComponent} from "../../modules/supplier/supplier/supplier.component";
 import {Employee} from "./employee";
 import {Supplier} from "./supplier";
+import {POStatus} from "./postatus";
+import {POItem} from "./poitem";
 
 export interface Purchaseorder {
   id? : number;
@@ -10,6 +11,7 @@ export interface Purchaseorder {
   description? : string;
   date? : string;
   employee? : Employee;
-  postatus? : Postatus;
-  supplier? : Supplier;
+  postatus? : POStatus;
+  supplierIdsupplier? : Supplier;
+  poitems:Array<POItem>;
 }
