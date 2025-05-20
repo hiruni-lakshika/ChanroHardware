@@ -36,6 +36,10 @@ public class PurchaseOrderIMPL implements PurchaseOrderService {
                 String employeeid = params.get("employeeid");
                 String postatusid = params.get("postatusid");
 
+                System.out.println(number);
+                System.out.println(employeeid);
+                System.out.println(postatusid);
+
                 Stream<PurchaseOrderDTO> stream = dtos.stream();
 
                 if (number != null ) stream = stream.filter( p -> p.getNumber().equals(number) );

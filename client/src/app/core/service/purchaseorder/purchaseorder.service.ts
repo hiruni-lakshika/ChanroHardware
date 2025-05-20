@@ -1,7 +1,6 @@
 import { Injectable } from '@angular/core';
 import {environment} from "../../../environment";
 import {HttpClient} from "@angular/common/http";
-import {Employee} from "../../entity/employee";
 import {Purchaseorder} from "../../entity/purchaseorder";
 
 
@@ -13,6 +12,7 @@ const apiurl =environment.apiUrl+"/purchaseorders";
 export class PurchaseorderService {
 
   constructor(private http: HttpClient) { }
+
   getAll(query:string){
     return this.http.get<Purchaseorder[]>(apiurl+query)
   }

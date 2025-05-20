@@ -202,7 +202,7 @@ export class PurchaseorderComponent implements OnInit{
   }
 
   loadTable(query:string){
-    this.pos.getAll("").subscribe({
+    this.pos.getAll(query).subscribe({
       next: data => {
         this.purchaseorders = data;
         this.dataSource = new MatTableDataSource<Purchaseorder>(this.purchaseorders);
@@ -549,7 +549,36 @@ export class PurchaseorderComponent implements OnInit{
 
   handleSearch(){
 
+    const ssnumber  = this.purchaseorderSearchForm.controls['ssnumber'].value;
+    const sspostatus  = this.purchaseorderSearchForm.controls['sspostatus'].value;
+    const ssemployee  = this.purchaseorderSearchForm.controls['ssemployee'].value;
+
+    let query = ""
+
+    if(ssnumber != null && ssnumber.trim() !="") query = query + "&number=" + ssnumber;
+    if(ssemployee != 'default') query = query + "&employeeid=" + parseInt(ssemployee);
+    if(sspostatus != 'default') query = query + "&postatusid=" + parseInt(sspostatus);
+
+    if(query != "") query = query.replace(/^./, "?")
+
+    this.loadTable(query);
   }
-  clearSearch(){}
+
+  clearSearch() {
+
+    const operation = "Clear Search";
+
+    this.dialog.open(ConfirmDialogComponent,{data:operation})
+      .afterClosed().subscribe(res => {
+      if(!res){
+        return;
+      }else{
+        this.purchaseorderSearchForm.reset();
+        this.purchaseorderSearchForm.controls['sspostatus'].setValue('default');
+        this.purchaseorderSearchForm.controls['ssemployee'].setValue('default');
+        this.loadTable("");
+      }
+    });
+  }
 
 }
