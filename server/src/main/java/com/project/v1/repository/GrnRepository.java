@@ -5,7 +5,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface GrnRepository extends JpaRepository<Grn, Integer> {
 
-    boolean existsByEmail(String email);
-    boolean existsByNic(String nic);
-    boolean existsByNumber(String number);
+    boolean existsByCode(String code);
+
 }

@@ -3,6 +3,7 @@ package com.project.v1.entity;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -43,7 +44,11 @@ public class Grn {
     private Supplier supplierIdsupplier;
 
     @JsonIgnore
-    @OneToMany(mappedBy = "grn")
+    @OneToMany(mappedBy = "grn", cascade = CascadeType.ALL,orphanRemoval = true)
     private Set<Grnitem> grnitems = new LinkedHashSet<>();
+
+    @Size(max = 45)
+    @Column(name = "code", length = 45)
+    private String code;
 
 }

@@ -54,4 +54,12 @@ public interface ObjectMapper {
     List<ItemDTO> itemsListToDtoList(List<Item> items);
 
     Purchaseorder purchaseOrderDtoToPo(PurchaseOrderDTO purchaseOrderDTO);
+
+    List<GrnDTO> grnListToDtoList(List<Grn> grns);
+
+    Grn GrnDtotoGrn(GrnDTO grnDTO);
+
+    Grn grnDtoToGrn(GrnDTO grnDTO);
+
+    List<GrnStatusDTO> grnStatusToDtoList(List<Grnstatus> grnStatusList);
 }

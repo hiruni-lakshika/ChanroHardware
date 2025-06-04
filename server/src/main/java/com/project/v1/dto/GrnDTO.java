@@ -28,6 +28,7 @@ public class GrnDTO {
     private Purchaseorder purchaseorder;
     private Grnstatus grnstatus;
     private Supplier supplierIdsupplier;
-    private Set<Grnitem> grnitems = new LinkedHashSet<>();
+    private Set<Grnitem> grnitems;
+    private String code;
 
 }
