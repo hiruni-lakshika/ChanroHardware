@@ -534,7 +534,7 @@ export class GrnComponent implements OnInit{
 
   clearForm() {
     this.grnForm.reset();
-    this.grnForm.controls['grn'].setValue(null);
+    this.grnForm.controls['grnstatus'].setValue(null);
     this.grnForm.controls['supplierIdsupplier'].setValue(null);
     this.grnForm.controls['purchaseorder'].setValue(null);
 
