@@ -1,9 +1,6 @@
 package com.project.v1.controller;
 
-import com.project.v1.dto.EmployeeDTO;
-import com.project.v1.dto.PurchaseOrderDTO;
-import com.project.v1.dto.SupplierDTO;
-import com.project.v1.dto.UserDTO;
+import com.project.v1.dto.*;
 import com.project.v1.util.regex.RegexProvider;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -35,5 +32,10 @@ public class RegexController {
     @GetMapping(path = "/po")
     public HashMap<String, HashMap<String,String>> po(){
         return RegexProvider.get(new PurchaseOrderDTO());
+    }
+
+    @GetMapping(path = "/grn")
+    public HashMap<String, HashMap<String,String>> grn(){
+        return RegexProvider.get(new GrnDTO());
     }
 }

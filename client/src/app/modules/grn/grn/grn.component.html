@@ -75,35 +75,53 @@
         <div class="relative w-full px-2 mb-3">
           <input
             type="text"
-            placeholder="Number"
+            placeholder="Code"
             class="peer input input-bordered w-full focus:outline-none"
-            formControlName="number"
+            formControlName="code"
           />
-          <label class="floating-label">Id</label>
+          <label class="floating-label">Code</label>
 
         </div>
 
         <div class="relative w-full px-2 mb-3">
           <input
             type="text"
-            placeholder="Expected Date"
+            placeholder="Received Date"
             class="peer input input-bordered w-full focus:outline-none"
-            formControlName="doexpected"
+            formControlName="doreceived"
             onfocus="(this.type='date')"
           />
-          <label class="floating-label">Expected Date</label>
+          <label class="floating-label">Received Date</label>
         </div>
 
-        <div class="relative w-full px-2 mb-3">
-          <input
-            type="text"
-            placeholder="Placed Date"
-            class="peer input input-bordered w-full focus:outline-none"
-            formControlName="date"
-            onfocus="(this.type='date')"
-          />
-          <label class="floating-label">Placed Date</label>
+        <div class="relative mb-3 px-2">
+          <select
+            class="peer select select-bordered w-full bg-white focus:outline-none"
+            formControlName="purchaseorder"
+          >
+            <option disabled [ngValue]="null">Purchase Order</option>
+
+            @for (purchaseorder of purchaseorders; track purchaseorders) {
+              <option [ngValue]="purchaseorder.id">{{ purchaseorder.number }}</option>
+            }
+          </select>
+          <label class="floating-labels-select">Purchase Order</label>
         </div>
+
+        <div class="relative mb-3 px-2">
+          <select
+            class="peer select select-bordered w-full bg-white focus:outline-none"
+            formControlName="supplierIdsupplier"
+          >
+            <option disabled [ngValue]="null">Supplier</option>
+
+            @for (supplier of suppliers; track suppliers) {
+              <option [ngValue]="supplier.id">{{ supplier.name }}</option>
+            }
+          </select>
+          <label class="floating-labels-select">Supplier</label>
+        </div>
+
 
         <!--        InnterForm Start-->
         <div>
@@ -154,7 +172,7 @@
                     <tr>
                       <td>{{ indata.item.name }}</td>
                       <td>{{ indata.quantity }}</td>
-                      <td>{{ indata.expectedlinetotal }}</td>
+                      <td>{{ indata.linetotal }}</td>
                       <td>
                         <button (click)="deleteRow(indata)"
                                 class="{{hasWriteAuthority ? 'text-error' : 'text-gray-300'}} hover:cursor-pointer"
@@ -182,7 +200,7 @@
             type="text"
             placeholder="GrandTotal"
             class="peer input input-bordered w-full focus:outline-none"
-            formControlName="expectedtotal"
+            formControlName="grandtotal"
           />
           <label class="floating-label">GrandTotal</label>
 
@@ -191,58 +209,20 @@
         <div class="relative mb-3 px-2">
           <select
             class="peer select select-bordered w-full bg-white focus:outline-none"
-            formControlName="supplierIdsupplier"
+            formControlName="grnstatus"
           >
-            <option disabled [ngValue]="null">Supplier</option>
+            <option disabled [ngValue]="null">Grn Status</option>
 
-            @for (supplier of suppliers; track suppliers) {
-              <option [ngValue]="supplier.id">{{ supplier.name }}</option>
+            @for (grnstatus of grnstatuses; track grnstatuses) {
+              <option [ngValue]="grnstatus.id">{{ grnstatus.name }}</option>
             }
           </select>
-          <label class="floating-labels-select">Supplier</label>
+          <label class="floating-labels-select">Grn Status</label>
         </div>
-
-        <div class="relative mb-3 px-2">
-          <select
-            class="peer select select-bordered w-full bg-white focus:outline-none"
-            formControlName="employee"
-          >
-            <option disabled [ngValue]="null">Employee</option>
-
-            @for (employee of employees; track employees) {
-              <option [ngValue]="employee.id">{{ employee.lastname }}</option>
-            }
-          </select>
-          <label class="floating-labels-select">Employee</label>
-        </div>
-
-        <div class="relative mb-3 px-2">
-          <select
-            class="peer select select-bordered w-full bg-white focus:outline-none"
-            formControlName="postatus"
-          >
-            <option disabled [ngValue]="null">PO Status</option>
-
-            @for (postatus of grnstatuses; track grnstatuses) {
-              <option [ngValue]="postatus.id">{{ postatus.name }}</option>
-            }
-          </select>
-          <label class="floating-labels-select">PO Status</label>
-        </div>
-
-        <div class="relative w-full mb-3 px-2">
-            <textarea
-              class="peer textarea textarea-bordered w-full h-36 focus:outline-none"
-              placeholder="Description"
-              formControlName="description"
-            ></textarea>
-          <label class="floating-label">Description</label>
-        </div>
-
 
         <div class="flex flex-row mt-3 max-w-[99%] px-2 pb-5">
           <button class="btn text-white bg-gray-950 mr-1 w-1/4 hover:bg-gray-900" [disabled]="!enaadd || !hasWriteAuthority" (click)="add()">Add</button>
-          <button class="btn text-white bg-gray-950 mr-1 w-1/4 hover:bg-gray-900" [disabled]="!enaupd || !hasUpdateAuthority" (click)="update(purchaseOrder)">Update</button>
+          <button class="btn text-white bg-gray-950 mr-1 w-1/4 hover:bg-gray-900" [disabled]="!enaupd || !hasUpdateAuthority" (click)="update(grn)">Update</button>
           <button class="btn text-white bg-gray-950 mr-1 w-1/4 hover:bg-gray-900" (click)="delete(grn)"
                   [disabled]="!hasDeleteAuthority || !enadel" >Delete</button>
           <button class="btn text-white bg-gray-950 w-1/4 hover:bg-gray-900" (click)="clearForm()">Clear</button>
@@ -260,37 +240,37 @@
         <span class="ml-5 text-white text-lg ">Data List</span>
       </div>
       <div class="overflow-visible p-4 mt-2 flex flex-col bg-white rounded-lg">
-        @if(!isFailed || !isLoading || grn.length !== 0){
+        @if(!isFailed || !isLoading || grns.length !== 0){
           <table class="text-left p-4 table" >
             <thead>
             <tr class="text-black bold">
-              <th>Number</th>
-              <th>Expected Date</th>
-              <th>Placed Date</th>
+              <th>Code</th>
+              <th>Received Date</th>
+              <th>Grand Total</th>
               <th>Status</th>
               <th>Actions</th>
             </tr>
             </thead>
 
             <tbody>
-              @for(po of data | async; track grns){
+              @for(grn of data | async; track grns){
                 <tr>
                   <td>
-                    {{po.number}}
+                    {{grn.code}}
                   </td>
 
                   <td>
-                    {{po.doexpected}}
+                    {{grn.doreceived}}
                   </td>
 
                   <td>
-                    {{po.date}}
+                    {{grn.grandtotal}}
                   </td>
 
                   <td>
                     <div class="flex items-center">
-                      <div class="badge badge-xs mr-1.5 {{po.grnstatus.id === 'Active'? 'bg-success' : 'bg-error'}}"></div>
-                      {{po.grnstatus.id}}
+                      <div class="badge badge-xs mr-1.5 {{grn.grnstatus.name === 'Received'? 'bg-success' : 'bg-error'}}"></div>
+                      {{grn.grnstatus.name}}
                     </div>
                   </td>
 
@@ -298,7 +278,7 @@
                     <div class="join">
                       <button
                         class=" join-item {{hasReadAuthority ? '' : 'text-gray-300'}} hover:cursor-pointer"
-                        (click) = "fillForm(po)"
+                        (click) = "fillForm(grn)"
                         [disabled]="!hasReadAuthority"
                       >
                         <svg

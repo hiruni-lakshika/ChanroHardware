@@ -1,9 +1,7 @@
 import {ChangeDetectorRef, Component, OnInit, ViewChild} from '@angular/core';
 import {Employee} from "../../../core/entity/employee";
-import {POStatus} from "../../../core/entity/postatus";
 import {Item} from "../../../core/entity/item";
 import {Supplier} from "../../../core/entity/supplier";
-import {Purchaseorder} from "../../../core/entity/purchaseorder";
 import {FormBuilder, FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators} from "@angular/forms";
 import {MatTableDataSource} from "@angular/material/table";
 import {Observable} from "rxjs";
@@ -13,7 +11,6 @@ import {PurchaseorderService} from "../../../core/service/purchaseorder/purchase
 import {ItemService} from "../../../core/service/purchaseorder/item.service";
 import {EmployeeService} from "../../../core/service/employee/employee.service";
 import {SupplierService} from "../../../core/service/supplier/supplier.service";
-import {PostatusService} from "../../../core/service/purchaseorder/postatus.service";
 import {RegexService} from "../../../core/service/regexes/regex.service";
 import {MatDialog} from "@angular/material/dialog";
 import {ToastService} from "../../../core/util/toast.service";
@@ -24,6 +21,11 @@ import {MatGridList, MatGridTile} from "@angular/material/grid-list";
 import {PageErrorComponent} from "../../../pages/page-error/page-error.component";
 import {PageLoadingComponent} from "../../../pages/page-loading/page-loading.component";
 import {Grn} from "../../../core/entity/grn";
+import {GrnStatus} from "../../../core/entity/grnstatus";
+import {GrnItem} from "../../../core/entity/grnitem";
+import {GrnService} from "../../../core/service/grn/grn.service";
+import {GrnstatusService} from "../../../core/service/grn/grnstatus.service";
+import {Purchaseorder} from "../../../core/entity/purchaseorder";
 
 @Component({
   selector: 'app-grn',
@@ -48,9 +50,10 @@ export class GrnComponent implements OnInit{
 
   employees:Employee[] = [];
   grnstatuses:GrnStatus[] = [];
+  purchaseorders:Purchaseorder[] = [];
   items:Item[] = [];
   suppliers:Supplier[] = [];
-  grn:Grn[] = [];
+  grns:Grn[] = [];
   innerdata: GrnItem[] = [];
 
   grn!:Grn;
@@ -88,10 +91,11 @@ export class GrnComponent implements OnInit{
     private is:ItemService,
     private es:EmployeeService,
     private ss:SupplierService,
-    private poss: PostatusService,
     private rs:RegexService,
     private dialog:MatDialog,
     private tst:ToastService,
+    private gs:GrnService,
+    private gss:GrnstatusService
   ) {
     this.grnSearchForm = this.fb.group({
       ssnumber:[null],
@@ -100,11 +104,11 @@ export class GrnComponent implements OnInit{
     });
 
     this.grnForm = this.fb.group({
-      "id": new FormControl('',[Validators.required]),
+      "code": new FormControl('',[Validators.required]),
       "doreceived": new FormControl('',[Validators.required]),
       "grandtotal": new FormControl('',[Validators.required]),
-      "purchaseorder_id": new FormControl('',[Validators.required]),
-      "grnstatus_id": new FormControl('',[Validators.required]),
+      "purchaseorder": new FormControl(null,[Validators.required]),
+      "grnstatus": new FormControl(null,[Validators.required]),
       "supplierIdsupplier": new FormControl(null,[Validators.required]),
     },{updateOn:'change'});
 
@@ -128,7 +132,7 @@ export class GrnComponent implements OnInit{
       next:data => this.items = data,
     });
 
-    this.poss.getAll().subscribe({
+    this.gss.getAll().subscribe({
       next:data => this.grnstatuses = data,
     });
 
@@ -140,7 +144,11 @@ export class GrnComponent implements OnInit{
       next:data => this.suppliers = data,
     });
 
-    this.rs.getRegexes('po').subscribe({
+    this.pos.getAll("").subscribe({
+      next:data => this.purchaseorders = data,
+    });
+
+    this.rs.getRegexes('grn').subscribe({
       next:data => {
         this.regexes = data;
         this.createForm();
@@ -150,11 +158,11 @@ export class GrnComponent implements OnInit{
   }
 
   createForm(){
-    this.grnForm.controls['id'].setValidators([Validators.required]);
+    this.grnForm.controls['code'].setValidators([Validators.required]);
     this.grnForm.controls['doreceived'].setValidators([Validators.required]);
     this.grnForm.controls['grandtotal'].setValidators([Validators.required]);
-    this.grnForm.controls['purchaseorder_id'].setValidators([Validators.required]);
-    this.grnForm.controls['grnstatus_id'].setValidators([Validators.required]);
+    this.grnForm.controls['purchaseorder'].setValidators([Validators.required]);
+    this.grnForm.controls['grnstatus'].setValidators([Validators.required]);
     this.grnForm.controls['supplierIdsupplier'].setValidators([Validators.required]);
 
     Object.values(this.grnForm.controls).forEach( control => { control.markAsTouched(); } );
@@ -198,7 +206,7 @@ export class GrnComponent implements OnInit{
   }
 
   loadTable(query:string){
-    this.pos.getAll(query).subscribe({
+    this.gs.getAll(query).subscribe({
       next: data => {
         this.grns = data;
         this.dataSource = new MatTableDataSource<Grn>(this.grns);
@@ -216,21 +224,22 @@ export class GrnComponent implements OnInit{
   }
 
 
-  fillForm(po:Grn){
+  fillForm(data:Grn){
+    console.log(data);
     this.enableButtons(false,true,true);
 
-    this.grn = po;
+    this.grn = data;
     this.oldGrn = this.grn;
 
     // @ts-ignore
     this.innerdata = this.grn.grnitems;
 
     this.grnForm.setValue({
-      id: this.grn.id,
+      code: this.grn.code,
       doreceived: this.grn.doreceived,
       grandtotal: this.grn.grandtotal,
-      purchaseorder_id: this.grn.urchaseorder_id,
-      grnstatus_id: this.grn.grn?.id,
+      purchaseorder: this.grn.purchaseorder?.id,
+      grnstatus: this.grn.grnstatus?.id,
       supplierIdsupplier: this.grn.supplierIdsupplier?.id,
     });
 
@@ -244,10 +253,8 @@ export class GrnComponent implements OnInit{
   }
 
   id = 0;
-  expectedlinetotal = 0;
+  linetotal = 0;
   grandtotal = 0;
-  grnstatuses: any;
-  grns: any;
 
   addToTable() {
 
@@ -255,7 +262,7 @@ export class GrnComponent implements OnInit{
 
     if (this.inndata.item == null || this.inndata.quantity == "") {
       this.dialog.open(WarningDialogComponent, {
-        data: {heading: "Errors - PO Item Add ", message: "Please Add Required Details"}
+        data: {heading: "Errors - Grn Item Add ", message: "Please Add Required Details"}
       }).afterClosed().subscribe(res => {
         if (!res) {
           return;
@@ -267,9 +274,9 @@ export class GrnComponent implements OnInit{
 
         this.calculateLineTotal(this.inndata.item.cost, this.inndata.quantity)
 
-        let poi = new POItem(this.id, this.inndata.item, this.inndata.quantity, this.expectedlinetotal);
+        let poi = new GrnItem(this.id, this.inndata.item, this.inndata.quantity,this.inndata.item.cost, this.linetotal);
 
-        let tem: POItem[] = [];
+        let tem: GrnItem[] = [];
         if (this.innerdata != null) this.innerdata.forEach((i) => tem.push(i));
 
         this.innerdata = [];
@@ -292,7 +299,7 @@ export class GrnComponent implements OnInit{
         } else {
           // If it exists, you can handle it as needed, e.g., show a message
           this.dialog.open(WarningDialogComponent, {
-            data: {heading: "Errors - PO Item Add ", message: "Duplicate record.<br>This record already exists in the table."}
+            data: {heading: "Errors - Grn Item Add ", message: "Duplicate record.<br>This record already exists in the table."}
           }).afterClosed().subscribe(res => {
             if (!res) {
               return;
@@ -316,7 +323,7 @@ export class GrnComponent implements OnInit{
   }
 
   calculateLineTotal(unitprice: number, qty: number) {
-    this.expectedlinetotal = qty * unitprice;
+    this.linetotal = qty * unitprice;
   }
 
   calculateGrandTotal() {
@@ -324,17 +331,17 @@ export class GrnComponent implements OnInit{
 
     // @ts-ignore
     this.innerdata.forEach((e) => {
-      this.grandtotal = this.grandtotal + e.expectedlinetotal;
+      this.grandtotal = this.grandtotal + e.linetotal;
     });
 
-    this.grnForm.controls['expectedtotal'].setValue(this.grandtotal);
+    this.grnForm.controls['grandtotal'].setValue(this.grandtotal);
   }
 
   deleteRow(x: any) {
 
     let datasources = this.innerdata;
 
-    this.dialog.open(ConfirmDialogComponent, {data: "Delete PO Item"})
+    this.dialog.open(ConfirmDialogComponent, {data: "Delete Grn Item"})
       .afterClosed().subscribe(res => {
       if (res) {
 
@@ -394,7 +401,7 @@ export class GrnComponent implements OnInit{
 
     if (errors != "") {
       this.dialog.open(WarningDialogComponent, {
-        data: {heading: "Errors - Purchase Order Add ", message: "You Have Following Errors " + errors}
+        data: {heading: "Errors - Grn Add ", message: "You Have Following Errors " + errors}
       }).afterClosed().subscribe(res => {
         if (!res) {
           return;
@@ -407,14 +414,14 @@ export class GrnComponent implements OnInit{
         // @ts-ignore
         this.innerdata.forEach((i)=> delete i.id);
 
-        const data:Purchaseorder = {
+        const data:Grn = {
           id: this.grnForm.controls['id'].value,
           doreceived: this.grnForm.controls['doreceived'].value,
           grandtotal: this.grnForm.controls['grandtotal'].value,
           grnitems: this.innerdata,
 
           grnstatus: {id: parseInt(this.grnForm.controls['grn'].value)},
-          PurchaseOrderId: {id: parseInt(this.grnForm.controls['purchaseorderid'].value)},
+          purchaseorder: {id: parseInt(this.grnForm.controls['purchaseorder'].value)},
           supplierIdsupplier: {id: parseInt(this.grnForm.controls['supplierIdsupplier'].value)},
         }
 
@@ -465,23 +472,23 @@ export class GrnComponent implements OnInit{
             // @ts-ignore
             this.innerdata.forEach((i)=> delete i.id);
 
-            const data:Purchaseorder = {
+            const data:Grn = {
               id: dat.id,
               doreceived: this.grnForm.controls['doreceived'].value,
               grandtotal: this.grnForm.controls['grandtotal'].value,
               grnitems: this.innerdata,
 
               grnstatus: {id: parseInt(this.grnForm.controls['grn'].value)},
-              purchaseOrderId: {id: parseInt(this.grnForm.controls['purchaseOrderId'].value)},
+              purchaseorder: {id: parseInt(this.grnForm.controls['purchaseOrder'].value)},
               supplierIdsupplier: {id: parseInt(this.grnForm.controls['supplierIdsupplier'].value)},
             }
 
-            this.dialog.open(ConfirmDialogComponent,{data:"PO Update "})
+            this.dialog.open(ConfirmDialogComponent,{data:"Grn Update "})
               .afterClosed().subscribe(res => {
               if(res) {
                 this.pos.update(data).subscribe({
                   next:() => {
-                    this.tst.handleResult('success',"PO Updated Successfully");
+                    this.tst.handleResult('success',"Grn Updated Successfully");
                     this.loadTable("");
                     this.clearForm();
                   },
@@ -498,7 +505,7 @@ export class GrnComponent implements OnInit{
 
       }else{
         this.dialog.open(WarningDialogComponent,{
-          data:{heading:"Updates - Supplier Update ",message: "No Fields Updated "}
+          data:{heading:"Updates - Grn Update ",message: "No Fields Updated "}
         }).afterClosed().subscribe(res =>{
           if(res){return;}
         })
@@ -506,15 +513,15 @@ export class GrnComponent implements OnInit{
     }
   }
 
-  delete(purchaseOrder: Grn[]) {
+  delete(data: Grn) {
 
     this.dialog.open(ConfirmDialogComponent,{data:"Delete PO "})
       .afterClosed().subscribe((res:boolean) => {
-      if(res && purchaseOrder.id){
-        this.pos.delete(this.grn.id).subscribe({
+      if(res && data.id){
+        this.pos.delete(data.id).subscribe({
           next: () => {
             this.loadTable("");
-            this.tst.handleResult("success","PO Deleted Successfully");
+            this.tst.handleResult("success","Grn Deleted Successfully");
             this.clearForm();
           },
           error: (err:any) => {
@@ -529,7 +536,7 @@ export class GrnComponent implements OnInit{
     this.grnForm.reset();
     this.grnForm.controls['grn'].setValue(null);
     this.grnForm.controls['supplierIdsupplier'].setValue(null);
-    this.grnForm.controls['purchaseorderId'].setValue(null);
+    this.grnForm.controls['purchaseorder'].setValue(null);
 
     this.innerdata = [];
     this.isInnerDataUpdated = false;

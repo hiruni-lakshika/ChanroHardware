@@ -1,11 +1,16 @@
 import {Purchaseorder} from "./purchaseorder";
 import {Supplier} from "./supplier";
+import {GrnItem} from "./grnitem";
+import {GrnStatus} from "./grnstatus";
 
 export interface Grn {
   id? : number;
+  code? : string;
   doreceived? : string;
   grandtotal? : number;
-  purchaseorder_id? : Purchaseorder;
-  grnstatus_id? : Grn;
-  supplier_id? : Supplier;
+  purchaseorder? : Purchaseorder;
+  grnstatus? : GrnStatus;
+  supplierIdsupplier? : Supplier;
+  grnitems? : Array<GrnItem>;
 }
+
