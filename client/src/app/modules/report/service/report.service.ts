@@ -13,6 +13,6 @@ export class ReportService {
   constructor(private http:HttpClient) { }
 
   countByDesignation(){
-    return this.http.get<CountByDesignation[]>(this.API_URL + "/countbydesignation");
+    return this.http.get<CountByDesignation[]>(API_URL + "/countbydesignation");
   }
 }

@@ -21,6 +21,9 @@
     "@angular/platform-browser-dynamic": "^17.0.0",
     "@angular/router": "^17.0.0",
     "boxicons": "^2.1.4",
+    "html2canvas": "^1.4.1",
+    "html2canvas-pro": "^1.5.8",
+    "jspdf": "^3.0.1",
     "rxjs": "~7.8.0",
     "tslib": "^2.3.0",
     "zone.js": "~0.14.2"

@@ -34,6 +34,7 @@ export class MainwindowComponent implements OnInit{
   showFiller = true;
   toggle1: boolean = true;
   toggle2: boolean = false;
+  toggle3: boolean = false;
 
   protected user = <User><unknown>({username: '', employee: {photo: ''}});
 
